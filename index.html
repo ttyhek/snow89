@@ -1,926 +1,851 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>雪 · 虐心文案</title>
-  <style>
-    /* ========== 全局雪天冷色调 ========== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>雪夜归途 · 最后一班列车</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:#050a10;
+  font-family:"Georgia","宋体",serif;
+  color:#b8c8d8;
+  touch-action:none;
+  position:relative;
+  user-select:none;
+  -webkit-user-select:none;
+}
 
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
+/* ============ 背景层 ============ */
+/* 窗外风景层（动态） */
+.scenery{position:fixed;inset:0;z-index:1;overflow:hidden;background:linear-gradient(180deg,#03060a,#0a1220 40%,#0d1626 100%)}
+/* 远处路灯（随页面移动） */
+.street-light{position:absolute;width:2px;height:14px;background:rgba(220,200,150,0.5);border-radius:50%;box-shadow:0 0 12px rgba(220,200,150,0.4),0 0 30px rgba(220,200,150,0.15);transition:left 1.5s ease,opacity 1.5s ease;opacity:0}
+.street-light::after{content:"";position:absolute;top:-4px;left:-3px;width:8px;height:4px;background:rgba(220,200,150,0.6);border-radius:50%;filter:blur(2px)}
+/* 雪地地平线 */
+.snow-horizon{position:absolute;bottom:38%;left:0;right:0;height:80px;background:linear-gradient(to top,rgba(180,200,230,0.04),transparent);pointer-events:none}
 
-    body {
-      background-color: #0a141c;
-      font-family: "Georgia", "Times New Roman", "宋体", serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 0;
-      overflow: hidden;
-      color: #d9e4ed;
-      transition: background-color 1.2s ease;
-      position: relative;
-      touch-action: pan-y;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+/* ============ 车厢内部层 ============ */
+.carriage{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:
+    /* 车顶阴影 */
+    linear-gradient(180deg,rgba(0,0,0,0.7) 0%,transparent 20%),
+    /* 车厢底部 */
+    linear-gradient(0deg,rgba(0,0,0,0.85) 0%,transparent 25%),
+    /* 整体冷灰蓝 */
+    radial-gradient(ellipse at 50% 40%,rgba(30,50,75,0.3),transparent 70%);
+}
+/* 车内暖黄阅读灯（唯一暖色） */
+.reading-lamp{
+  position:fixed;top:8%;left:50%;transform:translateX(-50%);
+  width:120px;height:60px;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 20%,rgba(200,160,80,0.12),transparent 70%);
+  filter:blur(15px);
+  animation:lampFlicker 4s ease-in-out infinite;
+}
+@keyframes lampFlicker{0%,100%{opacity:.5}48%{opacity:.5}50%{opacity:.8}52%{opacity:.5}80%{opacity:.6}}
+/* 对面空座位轮廓 */
+.empty-seat{
+  position:fixed;right:8%;top:42%;width:110px;height:150px;z-index:3;pointer-events:none;
+  border-radius:60px 60px 10px 10px;
+  background:linear-gradient(180deg,rgba(40,60,85,0.25),rgba(20,35,55,0.15));
+  border:1px solid rgba(100,140,180,0.08);
+  box-shadow:inset 0 10px 30px rgba(0,0,0,0.4);
+  opacity:.6;
+}
+.empty-seat::after{
+  content:"";position:absolute;bottom:-4px;left:10%;right:10%;height:8px;
+  background:rgba(50,75,100,0.3);border-radius:4px;filter:blur(2px);
+}
 
-    /* ========== 背景层：极光/冷光斑 ========== */
-    .bg-aurora {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
+/* ============ 车窗玻璃层（核心交互） ============ */
+.window-glass{
+  position:fixed;inset:0;z-index:20;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 25% 15%,rgba(200,225,245,0.06),transparent 55%),
+    linear-gradient(180deg,rgba(180,210,240,0.04),rgba(120,160,200,0.08));
+  backdrop-filter:blur(1.2px);
+  -webkit-backdrop-filter:blur(1.2px);
+  /* 雾气 mask：手指划过擦除 */
+  mask-image:radial-gradient(circle at var(--mx,50%) var(--my,50%),transparent 55px,rgba(0,0,0,0.95) 110px);
+  -webkit-mask-image:radial-gradient(circle at var(--mx,50%) var(--my,50%),transparent 55px,rgba(0,0,0,0.95) 110px);
+  transition:mask-image 0.25s ease-out;
+}
+/* 玻璃反光 */
+.window-glass::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 30%,rgba(200,225,255,0.03) 50%,transparent 70%);
+}
+/* 结霜纹理 */
+.frost-texture{
+  position:fixed;inset:0;z-index:19;pointer-events:none;
+  background:
+    radial-gradient(circle at 10% 10%,rgba(180,215,245,0.06),transparent 25%),
+    radial-gradient(circle at 85% 80%,rgba(160,200,240,0.05),transparent 20%),
+    radial-gradient(circle at 70% 20%,rgba(190,220,250,0.04),transparent 22%);
+  opacity:.7;
+}
 
-    .aurora-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.12;
-      animation: auroraFloat 18s ease-in-out infinite alternate;
-    }
+/* ============ 文案层 ============ */
+.book{position:relative;z-index:10;width:100%;height:100vh;height:100dvh;display:flex;flex-direction:column}
+.page{
+  display:none;flex-direction:column;height:100%;justify-content:center;position:relative;
+  padding:28px 28px;overflow:hidden;
+}
+.page.active{display:flex;animation:pageFadeIn 1s ease forwards}
+@keyframes pageFadeIn{0%{opacity:0;transform:translateY(18px);filter:blur(5px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
 
-    .aurora-blob:nth-child(1) {
-      width: 280px;
-      height: 280px;
-      background: radial-gradient(circle, #4a7fa8, transparent 70%);
-      top: -80px;
-      left: -60px;
-      animation-delay: 0s;
-    }
+/* 广播字幕 */
+.broadcast{
+  position:absolute;top:calc(14% + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);
+  font-family:"Courier New",monospace;font-size:.7rem;letter-spacing:3px;
+  color:rgba(200,120,80,0.5);text-shadow:0 0 12px rgba(200,120,80,0.3);
+  white-space:nowrap;text-align:center;
+  animation:broadcastGlow 2s ease-in-out infinite;
+}
+@keyframes broadcastGlow{0%,100%{opacity:.4}50%{opacity:.8}}
 
-    .aurora-blob:nth-child(2) {
-      width: 220px;
-      height: 220px;
-      background: radial-gradient(circle, #6b5b8a, transparent 70%);
-      bottom: -60px;
-      right: -40px;
-      animation-delay: -6s;
-      opacity: 0.08;
-    }
+/* 站点编号 */
+.station-num{
+  font-size:.65rem;letter-spacing:7px;color:#3a5a7a;
+  font-family:"Arial",sans-serif;text-align:center;margin-bottom:8px;
+}
+/* 时间 */
+.station-time{
+  font-size:.7rem;letter-spacing:3px;color:#2a4a6a;
+  font-family:"Courier New",monospace;text-align:center;margin-bottom:28px;
+}
 
-    .aurora-blob:nth-child(3) {
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, #3d7a7a, transparent 70%);
-      top: 45%;
-      left: 65%;
-      animation-delay: -12s;
-      opacity: 0.06;
-    }
+/* 文案内容 */
+.page-content{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;width:100%}
+.quote-main{
+  font-size:1.32rem;line-height:2.1;color:#c8d8e8;
+  text-shadow:0 0 30px rgba(140,180,220,.15);
+  margin-bottom:.5em;padding:0 6px;
+}
+.quote-sub{
+  font-size:1rem;line-height:2;color:#8ca4b8;
+  font-style:italic;margin-bottom:.4em;padding:0 6px;
+}
+.quote-whisper{
+  font-size:.86rem;line-height:1.9;color:#6a8298;
+  font-style:italic;padding:16px 12px 0;margin-top:14px;
+  border-top:1px solid rgba(120,160,200,.1);
+  max-width:92%;margin-left:auto;margin-right:auto;
+}
+.wound{color:#b5534a;font-style:italic;text-shadow:0 0 14px rgba(180,60,50,.25)}
+.ghost-text{
+  color:rgba(160,190,220,0.35);font-style:italic;
+  text-shadow:0 0 20px rgba(160,200,240,.2);
+  animation:ghostFlicker 3s ease-in-out infinite;
+}
+@keyframes ghostFlicker{0%,100%{opacity:.3}50%{opacity:.7}}
 
-    @keyframes auroraFloat {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(30px, -20px) scale(1.12); }
-      100% { transform: translate(-20px, 15px) scale(0.95); }
-    }
+/* 手写字（雾气上的字） */
+.handwriting{
+  position:fixed;top:38%;left:50%;transform:translate(-50%,-50%) rotate(-4deg);
+  font-size:1.6rem;color:rgba(200,220,240,0.12);
+  font-family:"KaiTi","楷体","STKaiti",serif;
+  letter-spacing:8px;z-index:18;pointer-events:none;
+  text-shadow:0 0 20px rgba(180,220,255,0.15);
+  opacity:0;transition:opacity 1.5s ease;
+  white-space:nowrap;
+}
+.handwriting.show{opacity:1}
 
-    /* ========== 背景层：远处雪山剪影 ========== */
-    .bg-mountains {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 140px;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.25;
-    }
+/* ============ 底部进度（永远到不了的终点） ============ */
+.progress-info{
+  position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  left:0;right:0;z-index:25;text-align:center;pointer-events:none;
+}
+.progress-text{
+  font-size:.65rem;letter-spacing:3px;color:rgba(140,170,200,0.3);
+  font-family:"Courier New",monospace;margin-bottom:6px;
+  font-style:italic;
+}
+.progress-bar{
+  width:60%;max-width:240px;height:2px;margin:0 auto;
+  background:rgba(60,90,120,0.3);border-radius:2px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,rgba(120,160,200,0.4),rgba(160,200,240,0.6));
+  border-radius:2px;
+  transition:width 1.5s ease;
+  box-shadow:0 0 10px rgba(140,190,240,0.3);
+}
 
-    .bg-mountains svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+/* ============ 滑动提示（拉下车窗） ============ */
+.swipe-hint{
+  position:fixed;bottom:calc(56px + env(safe-area-inset-bottom,0px));
+  left:50%;transform:translateX(-50%);z-index:25;
+  text-align:center;pointer-events:none;
+  animation:hintPulse 2.5s ease-in-out infinite;
+}
+@keyframes hintPulse{0%,100%{opacity:.25}50%{opacity:.6}}
+.hint-icon{font-size:1.1rem;display:block;margin-bottom:2px;color:rgba(160,200,240,.5)}
+.hint-text{font-size:.62rem;letter-spacing:3px;color:rgba(140,180,220,.35);font-style:italic;white-space:nowrap}
 
-    /* ========== 背景层：冰晶装饰 ========== */
-    .bg-crystals {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 2;
-      overflow: hidden;
-    }
+/* ============ 长按提示 ============ */
+.hold-indicator{
+  position:fixed;top:calc(20px + env(safe-area-inset-top,0px));right:18px;
+  z-index:25;pointer-events:none;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(160,200,240,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;color:rgba(160,200,240,0.3);
+  opacity:0;transition:opacity .5s;
+}
+.hold-indicator.show{opacity:1}
+.hold-indicator .ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(160,200,240,0.3);
+  opacity:0;
+}
+.hold-indicator.holding .ring{
+  animation:holdRing 2s linear forwards;
+}
+@keyframes holdRing{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
 
-    .crystal {
-      position: absolute;
-      color: rgba(180, 215, 245, 0.08);
-      animation: crystalFloat 12s ease-in-out infinite;
-      user-select: none;
-      font-size: 1.6rem;
-    }
+/* ============ 全局飘雪 ============ */
+.float-snowflake{
+  position:fixed;color:rgba(190,220,250,.1);pointer-events:none;z-index:6;
+  animation:floatDown linear infinite;user-select:none;
+}
+@keyframes floatDown{0%{transform:translateY(-40px) rotate(0deg);opacity:0}10%{opacity:.5}90%{opacity:.4}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
 
-    .crystal:nth-child(1) { top: 6%; left: 5%; animation-delay: 0s; font-size: 1.4rem; }
-    .crystal:nth-child(2) { top: 15%; right: 6%; animation-delay: -3s; font-size: 2rem; }
-    .crystal:nth-child(3) { bottom: 22%; left: 8%; animation-delay: -6s; font-size: 1.6rem; }
-    .crystal:nth-child(4) { bottom: 32%; right: 5%; animation-delay: -9s; font-size: 1.2rem; }
-    .crystal:nth-child(5) { top: 40%; left: 3%; animation-delay: -2s; font-size: 1rem; }
-    .crystal:nth-child(6) { top: 55%; right: 3%; animation-delay: -7s; font-size: 1.5rem; }
+/* ============ 雪花画布 ============ */
+#snow-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5}
 
-    @keyframes crystalFloat {
-      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.06; }
-      50% { transform: translateY(-14px) rotate(10deg); opacity: 0.14; }
-    }
+/* ============ 隧道层 ============ */
+.tunnel-overlay{
+  position:fixed;inset:0;z-index:100;background:#000;
+  opacity:0;pointer-events:none;transition:opacity 1.5s ease;
+}
+.tunnel-overlay.active{opacity:1;pointer-events:auto}
 
-    /* ========== 雪花画布 ========== */
-    #snow-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 3;
-    }
+/* ============ 幻影层 ============ */
+.ghost-figure{
+  position:fixed;right:12%;top:38%;width:70px;height:130px;z-index:14;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 20%,rgba(190,215,240,0.12),transparent 70%);
+  border-radius:40px 40px 15px 15px;
+  filter:blur(10px);opacity:0;transition:opacity 2s ease;
+}
+.ghost-figure.show{opacity:.7}
 
-    /* ========== 主容器（手机全屏布局） ========== */
-    .book {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 100%;
-      height: 100vh;
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-    }
+/* ============ 围巾（遗物） ============ */
+.scarf{
+  position:fixed;bottom:16%;left:50%;transform:translateX(-50%) rotate(-6deg);
+  width:100px;height:40px;z-index:13;pointer-events:none;
+  background:linear-gradient(135deg,rgba(120,60,70,0.25),rgba(90,45,55,0.15));
+  border-radius:20px 20px 8px 8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  opacity:0;transition:opacity 1.5s ease;
+}
+.scarf.show{opacity:.8}
+.scarf::after{
+  content:"";position:absolute;bottom:-12px;right:15px;width:12px;height:22px;
+  background:inherit;border-radius:0 0 6px 6px;transform:rotate(8deg);
+}
 
-    /* 每一页卡片 */
-    .page {
-      display: none;
-      flex-direction: column;
-      background: rgba(10, 22, 32, 0.82);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: none;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
-      animation: pageFadeIn 0.9s ease forwards;
-      height: 100%;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      padding: 20px 24px;
-      padding-top: env(safe-area-inset-top, 20px);
-      padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
-
-    .page.active {
-      display: flex;
-    }
-
-    @keyframes pageFadeIn {
-      0% { opacity: 0; transform: translateY(16px); filter: blur(4px); }
-      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-    }
-
-    /* 卡片内装饰：角落雪晶 */
-    .corner-crystal {
-      position: absolute;
-      color: rgba(160, 200, 240, 0.1);
-      font-size: 2.2rem;
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .corner-crystal.tl { top: 10px; left: 12px; }
-    .corner-crystal.tr { top: 10px; right: 12px; transform: scaleX(-1); }
-    .corner-crystal.bl { bottom: 10px; left: 12px; transform: scaleY(-1); }
-    .corner-crystal.br { bottom: 10px; right: 12px; transform: scale(-1, -1); }
-
-    /* 卡片内装饰：飘落的小雪点 */
-    .inner-snow {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: rgba(200, 230, 255, 0.3);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: innerSnowFall linear infinite;
-      box-shadow: 0 0 5px rgba(180, 220, 255, 0.4);
-    }
-
-    @keyframes innerSnowFall {
-      0% { transform: translateY(-10px); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(105vh); opacity: 0; }
-    }
-
-    /* 卡片内装饰：冰霜边缘 */
-    .frost-edge {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 50px;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(180, 215, 245, 0.04), transparent);
-    }
-
-    .frost-edge.top { top: 0; }
-    .frost-edge.bottom { bottom: 0; background: linear-gradient(to top, rgba(180, 215, 245, 0.04), transparent); }
-
-    /* ========== 页面内容区 ========== */
-    .page-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px 0;
-      gap: 0;
-      width: 100%;
-    }
-
-    /* ========== 页面指示器（固定在底部） ========== */
-    .progress-dots {
-      position: fixed;
-      bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      z-index: 20;
-      padding: 8px 0;
-      flex-wrap: wrap;
-      pointer-events: none;
-    }
-
-    .progress-dots .dot {
-      pointer-events: auto;
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #2f4a5e;
-      transition: all 0.5s ease;
-      cursor: pointer;
-      box-shadow: 0 0 0 0 rgba(160, 200, 240, 0);
-      touch-action: manipulation;
-    }
-
-    .dot.active {
-      background: #9cb9d4;
-      box-shadow: 0 0 12px rgba(160, 210, 255, 0.6), 0 0 0 3px rgba(140, 180, 220, 0.15);
-      width: 20px;
-      border-radius: 10px;
-    }
-
-    .dot:hover,
-    .dot:active {
-      background: #5f8aa8;
-    }
-
-    /* ========== 文本样式 ========== */
-    .page-number {
-      font-size: 0.7rem;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: #5f7a90;
-      margin-bottom: 22px;
-      font-family: "Arial", sans-serif;
-      font-weight: 300;
-      text-align: center;
-    }
-
-    .quote-main {
-      font-size: 1.35rem;
-      line-height: 1.9;
-      color: #d0e0f0;
-      text-shadow: 0 0 20px rgba(160, 200, 240, 0.15);
-      text-align: center;
-      text-indent: 0;
-      letter-spacing: 1px;
-      margin-bottom: 0.6em;
-      padding: 0 4px;
-    }
-
-    .quote-sub {
-      font-size: 1rem;
-      line-height: 1.9;
-      color: #9cb4ca;
-      text-align: center;
-      text-indent: 0;
-      font-style: italic;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.4em;
-      padding: 0 4px;
-    }
-
-    .quote-whisper {
-      font-size: 0.88rem;
-      line-height: 1.85;
-      color: #7f9ab0;
-      text-align: center;
-      text-indent: 0;
-      font-style: italic;
-      padding: 16px 8px 0;
-      margin-top: 14px;
-      border-top: 1px solid rgba(140, 170, 200, 0.12);
-      max-width: 90%;
-    }
-
-    .wound {
-      color: #b5534a;
-      font-style: italic;
-      text-shadow: 0 0 12px rgba(180, 60, 50, 0.25);
-      letter-spacing: 0.5px;
-    }
-
-    /* 分隔雪点 */
-    .snow-dot {
-      display: inline-block;
-      width: 4px;
-      height: 4px;
-      background: #9cb9d4;
-      border-radius: 50%;
-      margin: 0 10px;
-      opacity: 0.5;
-      box-shadow: 0 0 8px #b0d0f0;
-      vertical-align: middle;
-    }
-
-    /* ========== 按钮行（固定在底部） ========== */
-    .btn-row {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 24px;
-      padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-      z-index: 20;
-      background: linear-gradient(to top, rgba(10, 22, 32, 0.95), rgba(10, 22, 32, 0.7));
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-top: 1px solid rgba(140, 170, 200, 0.08);
-    }
-
-    .next-btn {
-      display: inline-block;
-      padding: 12px 28px;
-      background: transparent;
-      border: 1px solid rgba(160, 200, 240, 0.35);
-      border-radius: 60px;
-      color: #b8d0e8;
-      font-size: 0.9rem;
-      letter-spacing: 3px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: "Georgia", "宋体", serif;
-      text-shadow: 0 0 8px rgba(160, 200, 240, 0.2);
-      position: relative;
-      overflow: hidden;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
-    .next-btn::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(160, 210, 255, 0.12), transparent);
-      transition: left 0.6s ease;
-    }
-
-    .next-btn:active {
-      transform: scale(0.96);
-      border-color: rgba(180, 220, 255, 0.7);
-      color: #d8e8ff;
-      box-shadow: 0 0 30px rgba(100, 160, 220, 0.25);
-    }
-
-    .next-btn:hover::before {
-      left: 100%;
-    }
-
-    .back-hint {
-      display: inline-block;
-      padding: 8px 4px;
-      color: #5f7a90;
-      font-size: 0.8rem;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: color 0.3s;
-      font-style: italic;
-      border-bottom: 1px dotted rgba(120, 160, 200, 0.2);
-      touch-action: manipulation;
-      user-select: none;
-    }
-
-    .back-hint:active {
-      color: #9cb9d4;
-      border-bottom-color: rgba(160, 200, 240, 0.5);
-    }
-
-    /* ========== 角落飘落的雪花（全局装饰） ========== */
-    .float-snowflake {
-      position: fixed;
-      color: rgba(190, 220, 250, 0.15);
-      pointer-events: none;
-      z-index: 4;
-      animation: floatDown linear infinite;
-      user-select: none;
-    }
-
-    @keyframes floatDown {
-      0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.6; }
-      90% { opacity: 0.6; }
-      100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
-    }
-
-    /* ========== 底部滑动提示 ========== */
-    .swipe-hint {
-      position: fixed;
-      bottom: calc(66px + env(safe-area-inset-bottom, 0px));
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(140, 170, 200, 0.35);
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      font-style: italic;
-      z-index: 19;
-      pointer-events: none;
-      animation: swipePulse 2.5s ease-in-out infinite;
-      white-space: nowrap;
-    }
-
-    @keyframes swipePulse {
-      0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
-      50% { opacity: 0.7; transform: translateX(-50%) translateY(-4px); }
-    }
-
-    /* 小屏适配 */
-    @media (max-height: 600px) {
-      .quote-main { font-size: 1.15rem; line-height: 1.7; }
-      .quote-sub { font-size: 0.9rem; line-height: 1.7; }
-      .quote-whisper { font-size: 0.82rem; padding-top: 12px; margin-top: 10px; }
-      .page-number { margin-bottom: 16px; font-size: 0.65rem; }
-      .next-btn { padding: 10px 22px; font-size: 0.82rem; }
-      .btn-row { padding: 10px 18px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
-      .progress-dots { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
-      .swipe-hint { bottom: calc(54px + env(safe-area-inset-bottom, 0px)); font-size: 0.65rem; }
-    }
-
-    /* 大屏手机（横屏或平板竖屏）保持居中，限制最大宽度 */
-    @media (min-width: 520px) {
-      .page {
-        max-width: 500px;
-        margin: 0 auto;
-        border-radius: 24px;
-        border: 1px solid rgba(160, 190, 210, 0.12);
-        box-shadow:
-          0 25px 50px -8px rgba(0, 0, 0, 0.8),
-          0 0 0 1px rgba(200, 220, 240, 0.05),
-          0 0 60px rgba(70, 130, 180, 0.1);
-        padding: 40px 36px;
-        height: auto;
-        min-height: calc(100vh - 140px);
-        min-height: calc(100dvh - 140px);
-        justify-content: center;
-      }
-      .book {
-        justify-content: center;
-        align-items: center;
-        padding: 70px 0 80px;
-        height: 100vh;
-        height: 100dvh;
-      }
-      .progress-dots {
-        bottom: calc(78px + env(safe-area-inset-bottom, 0px));
-      }
-      .btn-row {
-        max-width: 500px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 0 0 24px 24px;
-        background: rgba(10, 22, 32, 0.85);
-        border-top: 1px solid rgba(140, 170, 200, 0.1);
-        padding: 16px 32px;
-        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-      }
-      .swipe-hint {
-        bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-      }
-      .inner-snow { display: none; }
-    }
-
-    /* 滚动条 */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0b151e;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #2f4a5e;
-      border-radius: 10px;
-    }
-  </style>
+/* ============ 雪花画布 ============ */
+@media(max-height:640px){
+  .quote-main{font-size:1.12rem;line-height:1.9}
+  .quote-sub{font-size:.88rem;line-height:1.8}
+  .quote-whisper{font-size:.78rem;padding-top:12px;margin-top:10px}
+  .station-num{margin-bottom:4px}
+  .station-time{margin-bottom:18px}
+}
+</style>
 </head>
 <body>
-  <!-- ===== 背景层 ===== -->
-  <div class="bg-aurora">
-    <div class="aurora-blob"></div>
-    <div class="aurora-blob"></div>
-    <div class="aurora-blob"></div>
-  </div>
 
-  <div class="bg-mountains">
-    <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
-      <path d="M0,140 L0,90 L120,60 L260,95 L400,40 L520,85 L660,25 L800,80 L940,45 L1080,90 L1220,55 L1360,85 L1440,65 L1440,140 Z"
-            fill="rgba(140, 180, 215, 0.08)"/>
-      <path d="M0,140 L0,110 L180,80 L320,110 L480,65 L640,100 L800,60 L960,95 L1120,70 L1280,100 L1440,80 L1440,140 Z"
-            fill="rgba(120, 160, 200, 0.06)"/>
-    </svg>
-  </div>
+<!-- ============ 窗外风景 ============ -->
+<div class="scenery" id="scenery">
+  <div class="snow-horizon"></div>
+  <div class="street-light" id="light1"></div>
+  <div class="street-light" id="light2"></div>
+  <div class="street-light" id="light3"></div>
+</div>
 
-  <div class="bg-crystals">
-    <span class="crystal">❄</span>
-    <span class="crystal">❅</span>
-    <span class="crystal">❆</span>
-    <span class="crystal">❄</span>
-    <span class="crystal">❅</span>
-    <span class="crystal">❆</span>
-  </div>
+<!-- ============ 车厢内部 ============ -->
+<div class="carriage"></div>
+<div class="reading-lamp"></div>
+<div class="empty-seat"></div>
 
-  <canvas id="snow-canvas"></canvas>
+<!-- ============ 雪花画布 ============ -->
+<canvas id="snow-canvas"></canvas>
 
-  <!-- ===== 全局飘落雪花 ===== -->
-  <div id="float-snow-container"></div>
+<!-- ============ 霜花纹理 ============ -->
+<div class="frost-texture"></div>
 
-  <!-- ===== 多页文案容器 ===== -->
-  <div class="book" id="book"></div>
+<!-- ============ 文案层 ============ -->
+<div class="book" id="book"></div>
 
-  <!-- ===== 进度点 ===== -->
-  <div class="progress-dots" id="dots"></div>
+<!-- ============ 车窗玻璃层（交互核心） ============ -->
+<div class="window-glass" id="windowGlass"></div>
 
-  <!-- ===== 底部按钮行（固定） ===== -->
-  <div class="btn-row" id="btnRow">
-    <span class="back-hint" id="backBtn" style="visibility: hidden;">↩ 上一页</span>
-    <button class="next-btn" id="nextBtn">下一页</button>
-  </div>
+<!-- ============ 雾气手写字 ============ -->
+<div class="handwriting" id="handwriting">等 我 回 来</div>
 
-  <!-- ===== 滑动提示 ===== -->
-  <div class="swipe-hint" id="swipeHint">← 左右滑动浏览 →</div>
+<!-- ============ 幻影 ============ -->
+<div class="ghost-figure" id="ghostFigure"></div>
 
-  <script>
-    // ==================== 虐心文案数据 ====================
-    const quotesPages = [
-      { pageNumber: "01 / 09", main: "我还在原地等你，", sub: "你却已经忘记曾来过这里。", whisper: "雪落无声，像极了你的离开。" },
-      { pageNumber: "02 / 09", main: "最痛的哭泣总掉不下半滴眼泪，", sub: "最深的孤独是站在人群中而哑口无言。", whisper: "天很冷，心更冷。" },
-      { pageNumber: "03 / 09", main: "我们总在最不懂爱情的年代，", sub: "遇见最美好的爱情。", whisper: "后来懂了，你也不见了。" },
-      { pageNumber: "04 / 09", main: "你是我患得患失的梦，", sub: "我是你可有可无的人。", whisper: "毕竟这穿越山河的箭，刺的都是用情至深的人。" },
-      { pageNumber: "05 / 09", main: "曾经说好的永远，", sub: "最后却成了各自的天涯。", whisper: "雪覆盖了来时的路，也覆盖了你的名字。" },
-      { pageNumber: "06 / 09", main: "最深的痛，", sub: "是我以为你也爱我。", whisper: "原来只是我以为。" },
-      { pageNumber: "07 / 09", main: "你是我拔掉又按回去的痛，", sub: "是我删了又加回来的人。", whisper: "雪落了一夜，我想了你一整夜。" },
-      { pageNumber: "08 / 09", main: "后来啊，", sub: "那个冬天成了我一个人的冬天。", whisper: "雪还是那片雪，只是身边再也没有你。" },
-      { pageNumber: "09 / 09", main: "雪落无声，", sub: "爱恨无痕。", whisper: "愿这漫天大雪，掩埋我所有的不甘。" }
-    ];
+<!-- ============ 围巾 ============ -->
+<div class="scarf" id="scarf"></div>
 
-    const totalPages = quotesPages.length;
-    let currentPage = 0;
+<!-- ============ 进度信息 ============ -->
+<div class="progress-info">
+  <div class="progress-text" id="progressText">距离终点站还有 9 站</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
 
-    // DOM 元素
-    const book = document.getElementById('book');
-    const dotsContainer = document.getElementById('dots');
-    const nextBtn = document.getElementById('nextBtn');
-    const backBtn = document.getElementById('backBtn');
-    const swipeHint = document.getElementById('swipeHint');
+<!-- ============ 滑动提示 ============ -->
+<div class="swipe-hint" id="swipeHint">
+  <span class="hint-icon">↓</span>
+  <span class="hint-text">向下滑动 · 拉下车窗</span>
+</div>
 
-    // ==================== 构建页面 ====================
-    function createInnerSnow(pageDiv) {
-      const count = 5;
-      for (let i = 0; i < count; i++) {
-        const snow = document.createElement('span');
-        snow.className = 'inner-snow';
-        snow.style.left = Math.random() * 90 + 5 + '%';
-        snow.style.animationDuration = (Math.random() * 5 + 6) + 's';
-        snow.style.animationDelay = (Math.random() * 8) + 's';
-        snow.style.width = (Math.random() * 2 + 1.5) + 'px';
-        snow.style.height = snow.style.width;
-        pageDiv.appendChild(snow);
-      }
-    }
+<!-- ============ 长按提示 ============ -->
+<div class="hold-indicator" id="holdIndicator">
+  ✦
+  <div class="ring"></div>
+</div>
 
-    function buildPages() {
-      book.innerHTML = '';
-      quotesPages.forEach((pageData, index) => {
-        const pageDiv = document.createElement('div');
-        pageDiv.className = 'page' + (index === 0 ? ' active' : '');
-        pageDiv.dataset.index = index;
+<!-- ============ 隧道层 ============ -->
+<div class="tunnel-overlay" id="tunnelOverlay"></div>
 
-        // 冰霜边缘
-        const frostTop = document.createElement('div');
-        frostTop.className = 'frost-edge top';
-        pageDiv.appendChild(frostTop);
-        const frostBottom = document.createElement('div');
-        frostBottom.className = 'frost-edge bottom';
-        pageDiv.appendChild(frostBottom);
+<script>
+// ==================== 数据：九站旅程 ====================
+const stations = [
+  {
+    num: "始发站",
+    time: "21:47",
+    broadcast: "本次列车开往 · 没有你的未来",
+    main: "车厢里只有我一个人。",
+    sub: "对面的座位上，放着你忘拿走的围巾。",
+    whisper: "我把它叠好，放在膝盖上。列车员说，下一站是「回忆」。",
+    effect: null
+  },
+  {
+    num: "第 2 站",
+    time: "21:58",
+    broadcast: "前方到站 · 初雪",
+    main: "窗外开始下雪了。",
+    sub: "我想起那年初雪，你站在路灯下等我。",
+    whisper: "你的鼻尖冻得通红，却笑着说——「这样冷的天，才能记住彼此的体温。」",
+    effect: "streetlights"
+  },
+  {
+    num: "第 3 站",
+    time: "22:15",
+    broadcast: "前方到站 · 习惯",
+    main: "你总是坐在靠窗的位置。",
+    sub: "你说你喜欢看风景，其实我知道，",
+    whisper: "你只是不想让我看到你哭。现在窗边空了，我却不敢坐过去。",
+    effect: null
+  },
+  {
+    num: "第 4 站",
+    time: "22:31",
+    broadcast: "列车进入隧道 · 请注意",
+    main: "列车进入隧道，窗外一片漆黑。",
+    sub: "玻璃上映出我的脸，和旁边空荡荡的座位。",
+    whisper: "我闭上眼睛，假装你还在。隧道很长，长到我可以骗自己一辈子。",
+    effect: "tunnel"
+  },
+  {
+    num: "第 5 站",
+    time: "22:48",
+    broadcast: "前方到站 · 站台",
+    main: "列车短暂停靠，没有人上车。",
+    sub: "站台上有个穿灰色大衣的人，背影很像你。",
+    whisper: "我趴在窗户上看，直到列车开动——那个人转过身，不是你。",
+    effect: "streetlights"
+  },
+  {
+    num: "第 6 站",
+    time: "23:02",
+    broadcast: "前方到站 · 雾气",
+    main: "车窗起了雾。",
+    sub: "我下意识地在玻璃上写下你的名字。",
+    whisper: "写到最后一笔时停住了。因为我知道，写了也不会有人回应。",
+    effect: "handwriting"
+  },
+  {
+    num: "第 7 站",
+    time: "23:19",
+    broadcast: "前方到站 · 你曾说过要去的地方",
+    main: "广播说：下一站，是「你曾经说过要一起去的地方」。",
+    sub: "我攥紧了你留下的围巾。",
+    whisper: "那条围巾上，还有你的味道。但我已经记不清，那是洗衣液的味道，还是你的味道。",
+    effect: "scarf"
+  },
+  {
+    num: "第 8 站",
+    time: "23:47",
+    broadcast: "前方到站 · 幻影",
+    main: "列车经过一座小站，车速很慢。",
+    sub: "站台的灯光掠过车厢，我看见——",
+    whisper: "对面的座位上，坐着你。我猛地转头，座位上只有围巾。玻璃上，我的倒影在哭。",
+    effect: "ghost"
+  },
+  {
+    num: "终点站",
+    time: "00:00",
+    broadcast: "终点站到了 · 请所有旅客带好回忆下车",
+    main: "列车到站了。我站起来，把围巾留在座位上。",
+    sub: "车门打开，冷风灌进来。外面雪停了，天快亮了。",
+    whisper: "我走出车厢，没有回头。因为我知道，这趟列车，永远不会再载着你回来了。",
+    effect: "final"
+  }
+];
 
-        // 角落冰晶
-        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
-          const crystal = document.createElement('span');
-          crystal.className = 'corner-crystal ' + pos;
-          crystal.textContent = '❆';
-          pageDiv.appendChild(crystal);
-        });
+const total = stations.length;
+let current = 0;
+let holdTimer = null;
+let fogTimer = null;
+let isDragging = false;
+let startY = 0;
+let currentY = 0;
 
-        // 内飘雪
-        createInnerSnow(pageDiv);
+// DOM
+const book = document.getElementById('book');
+const windowGlass = document.getElementById('windowGlass');
+const handwriting = document.getElementById('handwriting');
+const ghostFigure = document.getElementById('ghostFigure');
+const scarf = document.getElementById('scarf');
+const progressText = document.getElementById('progressText');
+const progressFill = document.getElementById('progressFill');
+const swipeHint = document.getElementById('swipeHint');
+const holdIndicator = document.getElementById('holdIndicator');
+const tunnelOverlay = document.getElementById('tunnelOverlay');
+const scenery = document.getElementById('scenery');
 
-        // 内容区
-        const content = document.createElement('div');
-        content.className = 'page-content';
+// ==================== 构建页面 ====================
+function build() {
+  book.innerHTML = '';
+  stations.forEach((s, i) => {
+    const p = document.createElement('div');
+    p.className = 'page' + (i === 0 ? ' active' : '');
+    p.dataset.index = i;
 
-        const pageNum = document.createElement('div');
-        pageNum.className = 'page-number';
-        pageNum.textContent = pageData.pageNumber;
-        content.appendChild(pageNum);
+    const content = document.createElement('div');
+    content.className = 'page-content';
 
-        const mainQuote = document.createElement('div');
-        mainQuote.className = 'quote-main';
-        mainQuote.textContent = pageData.main;
-        content.appendChild(mainQuote);
+    const broadcast = document.createElement('div');
+    broadcast.className = 'broadcast';
+    broadcast.textContent = '📢 ' + s.broadcast;
+    content.appendChild(broadcast);
 
-        const subQuote = document.createElement('div');
-        subQuote.className = 'quote-sub';
-        subQuote.textContent = pageData.sub;
-        content.appendChild(subQuote);
+    const num = document.createElement('div');
+    num.className = 'station-num';
+    num.textContent = s.num;
+    content.appendChild(num);
 
-        if (pageData.whisper) {
-          const whisper = document.createElement('div');
-          whisper.className = 'quote-whisper';
-          whisper.textContent = pageData.whisper;
-          content.appendChild(whisper);
-        }
+    const time = document.createElement('div');
+    time.className = 'station-time';
+    time.textContent = s.time;
+    content.appendChild(time);
 
-        pageDiv.appendChild(content);
-        book.appendChild(pageDiv);
-      });
+    const main = document.createElement('div');
+    main.className = 'quote-main';
+    main.textContent = s.main;
+    content.appendChild(main);
 
-      // 进度点
-      dotsContainer.innerHTML = '';
-      quotesPages.forEach((_, idx) => {
-        const dot = document.createElement('span');
-        dot.className = 'dot' + (idx === currentPage ? ' active' : '');
-        dot.dataset.index = idx;
-        dot.addEventListener('click', (e) => {
-          e.stopPropagation();
-          goToPage(idx);
-        });
-        dotsContainer.appendChild(dot);
-      });
-    }
+    const sub = document.createElement('div');
+    sub.className = 'quote-sub';
+    sub.textContent = s.sub;
+    content.appendChild(sub);
 
-    // ==================== 页面切换 ====================
-    function goToPage(index) {
-      const pages = document.querySelectorAll('.page');
-      const dots = document.querySelectorAll('.dot');
-      if (index < 0 || index >= pages.length) return;
+    const wh = document.createElement('div');
+    wh.className = 'quote-whisper';
+    wh.textContent = s.whisper;
+    content.appendChild(wh);
 
-      pages.forEach(p => p.classList.remove('active'));
-      pages[index].classList.add('active');
+    p.appendChild(content);
+    book.appendChild(p);
+  });
+}
 
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-      });
+// ==================== 页面切换 ====================
+function goToPage(index) {
+  if (index < 0 || index >= total) return;
 
-      currentPage = index;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page')[index].classList.add('active');
 
-      // 更新按钮文字
-      if (index === totalPages - 1) {
-        nextBtn.textContent = '重新开始';
-      } else {
-        nextBtn.textContent = '下一页';
-      }
+  current = index;
 
-      // 更新返回按钮可见性
-      if (index === 0) {
-        backBtn.style.visibility = 'hidden';
-      } else {
-        backBtn.style.visibility = 'visible';
-      }
+  // 更新进度
+  const remaining = total - 1 - index;
+  if (remaining > 0) {
+    progressText.textContent = `距离终点站还有 ${remaining} 站`;
+  } else {
+    progressText.textContent = '终点站到了';
+  }
+  // 进度条（永远填不满的感觉）
+  const fillPercent = (index / (total - 1)) * 85;
+  progressFill.style.width = fillPercent + '%';
 
-      // 更新提示文字
-      if (index === 0) {
-        swipeHint.textContent = '← 左右滑动浏览 →';
-      } else if (index === totalPages - 1) {
-        swipeHint.textContent = '↩ 回到第一页';
-      } else {
-        swipeHint.textContent = '← 左右滑动浏览 →';
-      }
+  // 触发页面特殊效果
+  triggerEffect(stations[index].effect);
 
-      // 最终页背景加深
-      if (index === totalPages - 1) {
-        document.body.style.backgroundColor = '#060b10';
-      } else {
-        document.body.style.backgroundColor = '#0a141c';
-      }
-    }
+  // 更新滑动提示
+  if (index === 0) {
+    swipeHint.querySelector('.hint-text').textContent = '向下滑动 · 拉下车窗';
+  } else if (index === total - 1) {
+    swipeHint.querySelector('.hint-text').textContent = '这趟列车 · 到此为止';
+  } else {
+    swipeHint.querySelector('.hint-text').textContent = '向下滑动 · 拉下车窗';
+  }
 
-    // ==================== 按钮事件 ====================
-    nextBtn.addEventListener('click', () => {
-      if (currentPage === totalPages - 1) {
-        goToPage(0);
-      } else {
-        goToPage(currentPage + 1);
-      }
+  // 长按提示（只在特定页面显示）
+  if (index === 5 || index === 7) {
+    holdIndicator.classList.add('show');
+  } else {
+    holdIndicator.classList.remove('show');
+  }
+
+  // 重置雾气
+  windowGlass.style.setProperty('--mx', '50%');
+  windowGlass.style.setProperty('--my', '50%');
+
+  // 最后一页特殊背景
+  if (index === total - 1) {
+    document.body.style.background = '#0a0d12';
+  } else {
+    document.body.style.background = '#050a10';
+  }
+}
+
+// ==================== 页面特效 ====================
+function triggerEffect(effect) {
+  // 隐藏所有特效元素
+  ghostFigure.classList.remove('show');
+  scarf.classList.remove('show');
+  handwriting.classList.remove('show');
+
+  if (effect === 'tunnel') {
+    // 隧道效果
+    setTimeout(() => {
+      tunnelOverlay.classList.add('active');
+      setTimeout(() => {
+        tunnelOverlay.classList.remove('active');
+      }, 2200);
+    }, 600);
+  }
+
+  if (effect === 'handwriting') {
+    setTimeout(() => {
+      handwriting.classList.add('show');
+    }, 800);
+  }
+
+  if (effect === 'ghost') {
+    setTimeout(() => {
+      ghostFigure.classList.add('show');
+      setTimeout(() => {
+        ghostFigure.classList.remove('show');
+      }, 3000);
+    }, 1000);
+  }
+
+  if (effect === 'scarf') {
+    setTimeout(() => {
+      scarf.classList.add('show');
+    }, 600);
+  }
+
+  if (effect === 'streetlights') {
+    // 路灯掠过
+    const lights = document.querySelectorAll('.street-light');
+    lights.forEach((light, i) => {
+      light.style.opacity = '0';
+      setTimeout(() => {
+        light.style.left = (10 + i * 30) + '%';
+        light.style.opacity = '1';
+        setTimeout(() => {
+          light.style.left = (60 + i * 15) + '%';
+          light.style.opacity = '0';
+        }, 1200);
+      }, i * 400);
     });
+  }
 
-    backBtn.addEventListener('click', () => {
-      if (currentPage > 0) {
-        goToPage(currentPage - 1);
-      }
-    });
+  if (effect === 'final') {
+    // 最后一页：雪停
+    setTimeout(() => {
+      const flakes = document.querySelectorAll('.float-snowflake');
+      flakes.forEach(f => f.style.animationPlayState = 'paused');
+      // 画布雪停
+      if (window._snowStop) window._snowStop();
+    }, 1000);
+  }
+}
 
-    // ==================== 触摸滑动支持 ====================
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-    const SWIPE_THRESHOLD = 50;
+// ==================== 擦雾气交互 ====================
+document.addEventListener('touchmove', (e) => {
+  if (isDragging) return; // 拖拽时不擦雾
+  const touch = e.touches[0];
+  windowGlass.style.setProperty('--mx', touch.clientX + 'px');
+  windowGlass.style.setProperty('--my', touch.clientY + 'px');
 
-    document.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
+  // 3秒后雾气重新聚拢
+  clearTimeout(fogTimer);
+  fogTimer = setTimeout(() => {
+    windowGlass.style.setProperty('--mx', '50%');
+    windowGlass.style.setProperty('--my', '50%');
+  }, 3000);
+}, { passive: true });
 
-    document.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      touchEndY = e.changedTouches[0].screenY;
-      handleSwipe();
-    }, { passive: true });
+// 鼠标移动（桌面调试用）
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) return;
+  windowGlass.style.setProperty('--mx', e.clientX + 'px');
+  windowGlass.style.setProperty('--my', e.clientY + 'px');
+  clearTimeout(fogTimer);
+  fogTimer = setTimeout(() => {
+    windowGlass.style.setProperty('--mx', '50%');
+    windowGlass.style.setProperty('--my', '50%');
+  }, 3000);
+});
 
-    function handleSwipe() {
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
+// ==================== 长按交互 ====================
+let holdStartTime = 0;
 
-      // 水平滑动大于垂直滑动才触发
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
-        if (deltaX < 0) {
-          // 左滑 -> 下一页
-          if (currentPage < totalPages - 1) {
-            goToPage(currentPage + 1);
-          } else {
-            goToPage(0);
-          }
-        } else {
-          // 右滑 -> 上一页
-          if (currentPage > 0) {
-            goToPage(currentPage - 1);
-          }
-        }
-      }
+function startHold(e) {
+  holdIndicator.classList.add('holding');
+  holdStartTime = Date.now();
+
+  holdTimer = setTimeout(() => {
+    // 长按2秒：显示手写字
+    handwriting.classList.add('show');
+    holdIndicator.classList.remove('holding');
+
+    // 如果是第8站，同时显示幻影
+    if (current === 7) {
+      ghostFigure.classList.add('show');
+      setTimeout(() => ghostFigure.classList.remove('show'), 2500);
     }
 
-    // ==================== 键盘支持 ====================
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (currentPage < totalPages - 1) goToPage(currentPage + 1);
-        else goToPage(0);
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (currentPage > 0) goToPage(currentPage - 1);
+    // 震动反馈
+    if (navigator.vibrate) navigator.vibrate(30);
+  }, 2000);
+}
+
+function endHold() {
+  holdIndicator.classList.remove('holding');
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
+}
+
+document.addEventListener('touchstart', startHold, { passive: true });
+document.addEventListener('touchend', endHold, { passive: true });
+document.addEventListener('mousedown', startHold);
+document.addEventListener('mouseup', endHold);
+
+// ==================== 拉下车窗（滑动翻页） ====================
+document.addEventListener('touchstart', (e) => {
+  startY = e.changedTouches[0].screenY;
+  isDragging = true;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  if (!isDragging) return;
+  currentY = e.changedTouches[0].screenY - startY;
+  // 玻璃跟随手指：下拉时玻璃向下移动（视觉上像是拉下车窗）
+  if (currentY > 0) {
+    windowGlass.style.transform = `translateY(${Math.min(currentY * 0.4, 60)}px)`;
+    windowGlass.style.opacity = 1 - Math.min(currentY / 300, 0.4);
+  }
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const dy = e.changedTouches[0].screenY - startY;
+
+  // 回弹
+  windowGlass.style.transform = 'translateY(0)';
+  windowGlass.style.opacity = '1';
+
+  if (dy > 80) {
+    // 拉下超过阈值 → 下一页
+    if (current < total - 1) {
+      goToPage(current + 1);
+    }
+  } else if (dy < -80) {
+    // 上推 → 上一页
+    if (current > 0) {
+      goToPage(current - 1);
+    }
+  }
+  currentY = 0;
+}, { passive: true });
+
+// 鼠标拖拽（桌面调试）
+let mouseStartY = 0;
+document.addEventListener('mousedown', (e) => {
+  mouseStartY = e.clientY;
+  isDragging = true;
+});
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const dy = e.clientY - mouseStartY;
+  if (dy > 0) {
+    windowGlass.style.transform = `translateY(${Math.min(dy * 0.4, 60)}px)`;
+    windowGlass.style.opacity = 1 - Math.min(dy / 300, 0.4);
+  }
+});
+document.addEventListener('mouseup', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  const dy = e.clientY - mouseStartY;
+  windowGlass.style.transform = 'translateY(0)';
+  windowGlass.style.opacity = '1';
+
+  if (dy > 80 && current < total - 1) goToPage(current + 1);
+  else if (dy < -80 && current > 0) goToPage(current - 1);
+});
+
+// ==================== 键盘 ====================
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (current < total - 1) goToPage(current + 1);
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (current > 0) goToPage(current - 1);
+  }
+});
+
+// ==================== 全局飘雪 ====================
+(function createFloatSnow() {
+  const symbols = ['❄', '❅', '❆', '·', '•'];
+  for (let i = 0; i < 16; i++) {
+    const f = document.createElement('span');
+    f.className = 'float-snowflake';
+    f.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    f.style.left = Math.random() * 100 + '%';
+    f.style.animationDuration = (Math.random() * 12 + 10) + 's';
+    f.style.animationDelay = (Math.random() * 20) + 's';
+    f.style.fontSize = (Math.random() * 0.8 + 0.6) + 'rem';
+    f.style.opacity = (Math.random() * 0.12 + 0.04);
+    document.body.appendChild(f);
+  }
+})();
+
+// ==================== 雪花画布 ====================
+(function initSnow() {
+  const canvas = document.getElementById('snow-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  let flakes = [];
+  let stopped = false;
+
+  function initFlakes() {
+    const area = w * h;
+    let count = Math.floor(area / 14000);
+    count = Math.min(220, Math.max(70, count));
+    flakes = [];
+    for (let i = 0; i < count; i++) {
+      flakes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 2.6 + 0.6,
+        d: Math.random() * 0.9 + 0.3,
+        o: Math.random() * 0.55 + 0.25,
+        wind: Math.random() * 1.3 - 0.5,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function resize() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w;
+    canvas.height = h;
+    initFlakes();
+  }
+
+  function draw(f) {
+    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2.2);
+    g.addColorStop(0, `rgba(230,245,255,${f.o})`);
+    g.addColorStop(0.5, `rgba(190,225,250,${f.o * 0.6})`);
+    g.addColorStop(1, 'rgba(130,180,230,0)');
+    ctx.beginPath();
+    ctx.fillStyle = g;
+    ctx.arc(f.x, f.y, f.r * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,255,255,${f.o * 0.9})`;
+    ctx.arc(f.x, f.y, f.r * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function update() {
+    if (stopped) return;
+    for (let f of flakes) {
+      f.y += f.d * (f.r * 0.85 + 0.6) * 0.68;
+      f.x += f.wind * 0.5 + Math.sin(f.phase) * 0.14;
+      f.phase += 0.018;
+      if (f.y > h + 15) {
+        f.y = -15;
+        f.x = Math.random() * w;
+        f.o = Math.random() * 0.55 + 0.25;
+        f.wind = Math.random() * 1.3 - 0.5;
       }
-    });
+      if (f.x > w + 15) f.x = -15;
+      if (f.x < -15) f.x = w + 15;
+    }
+  }
 
-    // ==================== 全局飘落雪花 ====================
-    (function createFloatSnow() {
-      const container = document.getElementById('float-snow-container');
-      const symbols = ['❄', '❅', '❆', '·', '•'];
-      const count = 14;
-      for (let i = 0; i < count; i++) {
-        const flake = document.createElement('span');
-        flake.className = 'float-snowflake';
-        flake.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-        flake.style.left = Math.random() * 100 + '%';
-        flake.style.animationDuration = (Math.random() * 12 + 10) + 's';
-        flake.style.animationDelay = (Math.random() * 20) + 's';
-        flake.style.fontSize = (Math.random() * 0.8 + 0.6) + 'rem';
-        flake.style.opacity = (Math.random() * 0.12 + 0.04);
-        container.appendChild(flake);
+  function render() {
+    ctx.clearRect(0, 0, w, h);
+    for (let f of flakes) draw(f);
+    update();
+    requestAnimationFrame(render);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  render();
+
+  // 暴露停止方法给最终页
+  window._snowStop = function () {
+    stopped = true;
+    // 让雪缓慢消失
+    let fade = 1;
+    const fadeInterval = setInterval(() => {
+      fade -= 0.05;
+      if (fade <= 0) {
+        clearInterval(fadeInterval);
+        return;
       }
-    })();
+      flakes.forEach(f => f.o *= 0.95);
+    }, 100);
+  };
+})();
 
-    // ==================== 雪花系统（Canvas） ====================
-    (function initSnow() {
-      const canvas = document.getElementById('snow-canvas');
-      const ctx = canvas.getContext('2d');
-      let width, height;
-      let snowflakes = [];
+// ==================== 设备倾斜（雪斜向飘落） ====================
+window.addEventListener('deviceorientation', (e) => {
+  const tilt = Math.max(-30, Math.min(30, e.gamma || 0));
+  const flakes = document.querySelectorAll('.float-snowflake');
+  flakes.forEach(f => {
+    f.style.transform = `translateX(${tilt * 0.5}px)`;
+  });
+}, { passive: true });
 
-      function initSnowflakes() {
-        const area = width * height;
-        let count = Math.floor(area / 16000);
-        count = Math.min(200, Math.max(60, count));
-        
-        snowflakes = [];
-        for (let i = 0; i < count; i++) {
-          snowflakes.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            r: Math.random() * 2.5 + 0.6,
-            d: Math.random() * 0.8 + 0.25,
-            opacity: Math.random() * 0.5 + 0.25,
-            wind: Math.random() * 1.2 - 0.5,
-            phase: Math.random() * Math.PI * 2,
-          });
-        }
-      }
-
-      function resizeCanvas() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        initSnowflakes();
-      }
-
-      function drawSnowflake(flake) {
-        const gradient = ctx.createRadialGradient(
-          flake.x, flake.y, 0,
-          flake.x, flake.y, flake.r * 2.2
-        );
-        gradient.addColorStop(0, `rgba(220, 240, 255, ${flake.opacity})`);
-        gradient.addColorStop(0.55, `rgba(180, 215, 245, ${flake.opacity * 0.6})`);
-        gradient.addColorStop(1, `rgba(120, 165, 210, 0)`);
-        
-        ctx.beginPath();
-        ctx.fillStyle = gradient;
-        ctx.arc(flake.x, flake.y, flake.r * 1.8, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(245, 252, 255, ${flake.opacity * 0.9})`;
-        ctx.arc(flake.x, flake.y, flake.r * 0.55, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      function updateSnow() {
-        for (let flake of snowflakes) {
-          flake.y += flake.d * (flake.r * 0.8 + 0.5) * 0.65;
-          flake.x += flake.wind * 0.4 + Math.sin(flake.phase) * 0.12;
-          flake.phase += 0.016;
-          
-          if (flake.y > height + 15) {
-            flake.y = -15;
-            flake.x = Math.random() * width;
-            flake.opacity = Math.random() * 0.5 + 0.25;
-            flake.wind = Math.random() * 1.2 - 0.5;
-          }
-          if (flake.x > width + 15) flake.x = -15;
-          if (flake.x < -15) flake.x = width + 15;
-        }
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, width, height);
-        for (let flake of snowflakes) drawSnowflake(flake);
-        updateSnow();
-        requestAnimationFrame(render);
-      }
-
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-      render();
-    })();
-
-    // ==================== 初始化 ====================
-    buildPages();
-    goToPage(0);
-  </script>
+// ==================== 初始化 ====================
+build();
+goToPage(0);
+</script>
 </body>
 </html>
