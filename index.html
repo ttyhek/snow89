@@ -8,9 +8,9 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{
-  background:#050a10;
+  background:#0a1220;
   font-family:"Georgia","宋体",serif;
-  color:#b8c8d8;
+  color:#d0dce8;
   touch-action:none;
   position:relative;
   user-select:none;
@@ -18,20 +18,20 @@ body{
 }
 
 /* ============ 背景 ============ */
-.bg{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#03060a,#0a1220 50%,#0d1626 100%);transition:background 2s ease}
-.bg.station{background:linear-gradient(180deg,#050a12,#0d1a2a 45%,#12253a 100%)}
-.bg.carriage{background:linear-gradient(180deg,#03060a,#081420 50%,#0a1826 100%)}
-.bg.amber{background:linear-gradient(180deg,#0a0806,#1a1208 50%,#2a1a0a 100%)}
+.bg{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#0a1220,#101c2e 50%,#142438 100%);transition:background 2s ease}
+.bg.station{background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%)}
+.bg.carriage{background:linear-gradient(180deg,#0a1220,#0e1a2a 50%,#122236 100%)}
+.bg.amber{background:linear-gradient(180deg,#14100a,#241a0e 50%,#34240e 100%)}
 
 #snow-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
 
 .platform-light{
   position:fixed;top:18%;width:2px;height:18px;
-  background:rgba(220,200,150,0.6);border-radius:50%;
-  box-shadow:0 0 15px rgba(220,200,150,0.5),0 0 40px rgba(220,200,150,0.2);
+  background:rgba(230,210,160,0.7);border-radius:50%;
+  box-shadow:0 0 18px rgba(230,210,160,0.6),0 0 45px rgba(230,210,160,0.25);
   z-index:2;transition:opacity 2s ease;
 }
-.platform-light::after{content:"";position:absolute;top:-5px;left:-4px;width:10px;height:5px;background:rgba(220,200,150,0.7);border-radius:50%;filter:blur(2px)}
+.platform-light::after{content:"";position:absolute;top:-5px;left:-4px;width:10px;height:5px;background:rgba(230,210,160,0.8);border-radius:50%;filter:blur(2px)}
 .platform-light.l1{left:12%}
 .platform-light.l2{left:45%}
 .platform-light.l3{left:78%}
@@ -44,14 +44,14 @@ body{
 .carriage-interior::before{
   content:"";position:absolute;inset:0;
   background:
-    linear-gradient(180deg,rgba(0,0,0,0.7) 0%,transparent 18%),
-    linear-gradient(0deg,rgba(0,0,0,0.85) 0%,transparent 22%),
-    radial-gradient(ellipse at 50% 40%,rgba(30,50,75,0.25),transparent 70%);
+    linear-gradient(180deg,rgba(0,0,0,0.6) 0%,transparent 18%),
+    linear-gradient(0deg,rgba(0,0,0,0.75) 0%,transparent 22%),
+    radial-gradient(ellipse at 50% 40%,rgba(40,65,95,0.3),transparent 70%);
 }
 .reading-lamp{
   position:fixed;top:6%;left:50%;transform:translateX(-50%);
   width:140px;height:70px;z-index:4;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 20%,rgba(200,160,80,0.14),transparent 70%);
+  background:radial-gradient(ellipse at 50% 20%,rgba(220,180,100,0.18),transparent 70%);
   filter:blur(18px);opacity:0;transition:opacity 2s ease;
   animation:lampFlicker 4s ease-in-out infinite;
 }
@@ -68,73 +68,145 @@ body{
   overflow-y:auto;
 }
 .screen.active{display:flex;animation:screenFadeIn 1.2s ease forwards}
-@keyframes screenFadeIn{0%{opacity:0;transform:translateY(20px);filter:blur(6px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes screenFadeIn{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
 
 .title{
   font-size:2.2rem;letter-spacing:12px;
-  color:#c8d8e8;
-  text-shadow:0 0 40px rgba(140,180,220,0.3),0 0 80px rgba(100,150,200,0.15);
+  color:#e0ecf8;
+  text-shadow:0 0 40px rgba(160,200,240,0.4),0 0 80px rgba(120,170,220,0.2);
   margin-bottom:10px;font-style:italic;
 }
 .subtitle{
   font-size:.72rem;letter-spacing:6px;
-  color:#4a6a8a;font-family:"Arial",sans-serif;
+  color:#6a8aaa;font-family:"Arial",sans-serif;
   margin-bottom:48px;text-transform:uppercase;
 }
 
 /* ============ 票根 ============ */
+.ticket-wrap{
+  position:relative;
+  margin-bottom:36px;
+}
 .ticket{
   position:relative;
-  width:280px;
-  background:linear-gradient(135deg,rgba(20,32,48,0.9),rgba(12,22,34,0.95));
-  border:1px solid rgba(140,180,220,0.2);
+  width:290px;
+  background:linear-gradient(135deg,rgba(26,42,62,0.95),rgba(16,28,44,0.98));
+  border:1px solid rgba(160,200,240,0.3);
   border-radius:12px;
-  padding:24px 20px;
-  margin-bottom:40px;
-  box-shadow:0 20px 50px rgba(0,0,0,0.7),inset 0 1px 0 rgba(180,210,240,0.1);
-  animation:ticketFloat 4s ease-in-out infinite;
+  padding:26px 22px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.7),inset 0 1px 0 rgba(200,225,255,0.12);
+  transition:all .8s cubic-bezier(.4,.8,.3,1);
+  transform-origin:left center;
 }
-@keyframes ticketFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
 .ticket::before,.ticket::after{
   content:"";position:absolute;width:16px;height:16px;
-  background:#050a10;border-radius:50%;
-  border:1px solid rgba(140,180,220,0.15);
+  background:#0a1220;border-radius:50%;
+  border:1px solid rgba(160,200,240,0.2);
+  transition:all .8s ease;
 }
 .ticket::before{left:-8px;top:50%;transform:translateY(-50%)}
 .ticket::after{right:-8px;top:50%;transform:translateY(-50%)}
+
+/* 裁剪线 */
+.ticket-divider{
+  position:absolute;top:0;bottom:0;width:0;
+  border-left:1px dashed rgba(160,200,240,0.35);
+  transition:all .8s ease;
+  left:75%;
+}
+.ticket-divider::before{
+  content:"✂";
+  position:absolute;top:-10px;left:-8px;
+  font-size:.8rem;color:rgba(160,200,240,0.5);
+}
+
+/* 裁剪动画 */
+.ticket.cutting .ticket-divider{
+  left:0%;
+}
+.ticket.cut .ticket-divider{
+  left:0%;opacity:0;
+}
+.ticket.cut{
+  transform:translateX(-100%) rotate(-8deg);
+  opacity:0;
+  pointer-events:none;
+}
+
 .ticket-header{
   font-size:.6rem;letter-spacing:5px;
-  color:#5a7a9a;font-family:"Arial",sans-serif;
+  color:#7a9aba;font-family:"Arial",sans-serif;
   margin-bottom:14px;text-align:left;
 }
 .ticket-route{
   font-size:.95rem;letter-spacing:2px;
-  color:#a8c0d8;margin-bottom:6px;text-align:left;
+  color:#c0d4e8;margin-bottom:6px;text-align:left;
 }
-.ticket-route .arrow{color:#4a6a8a;margin:0 8px}
-.ticket-info{
-  display:flex;justify-content:space-between;
-  margin-top:16px;padding-top:14px;
-  border-top:1px dashed rgba(140,180,220,0.15);
-  font-size:.62rem;letter-spacing:2px;
-  color:#4a6a8a;font-family:"Courier New",monospace;
+.ticket-route .arrow{color:#6a8aaa;margin:0 8px}
+.ticket-name{
+  font-size:.68rem;letter-spacing:3px;
+  color:#8aa8c0;margin-top:10px;text-align:left;
+  font-family:"Courier New",monospace;
 }
-.ticket-info .value{color:#8aa8c0}
+.ticket-name .name-value{
+  color:#e0c080;
+  text-shadow:0 0 12px rgba(220,180,100,0.5);
+  font-size:.85rem;
+  letter-spacing:2px;
+}
 .ticket-seat{
   font-size:.68rem;letter-spacing:3px;
-  color:#6a8aa8;margin-top:10px;text-align:left;
+  color:#8aa8c0;margin-top:6px;text-align:left;
   font-family:"Courier New",monospace;
 }
 .ticket-seat .seat-num{
-  color:#c0a060;
-  text-shadow:0 0 10px rgba(200,160,80,0.4);
-  font-size:.8rem;
+  color:#e0c080;
+  text-shadow:0 0 12px rgba(220,180,100,0.5);
+  font-size:.85rem;
 }
+.ticket-info{
+  display:flex;justify-content:space-between;
+  margin-top:16px;padding-top:14px;
+  border-top:1px dashed rgba(160,200,240,0.2);
+  font-size:.62rem;letter-spacing:2px;
+  color:#6a8aaa;font-family:"Courier New",monospace;
+}
+.ticket-info .value{color:#a0bcd4}
 .ticket-serial{
   position:absolute;bottom:8px;right:16px;
   font-size:.55rem;letter-spacing:1px;
-  color:rgba(100,140,180,0.3);
+  color:rgba(120,160,200,0.4);
   font-family:"Courier New",monospace;
+}
+
+/* ============ 输入框 ============ */
+.name-input-wrap{
+  width:290px;
+  margin-bottom:28px;
+}
+.name-input{
+  width:100%;
+  padding:16px 20px;
+  background:rgba(16,28,44,0.8);
+  border:1px solid rgba(160,200,240,0.3);
+  border-radius:12px;
+  color:#e0ecf8;
+  font-size:1rem;
+  letter-spacing:3px;
+  font-family:"Georgia","宋体",serif;
+  text-align:center;
+  outline:none;
+  transition:all .3s ease;
+}
+.name-input::placeholder{
+  color:rgba(140,170,200,0.4);
+  letter-spacing:2px;
+  font-size:.85rem;
+}
+.name-input:focus{
+  border-color:rgba(200,220,255,0.6);
+  box-shadow:0 0 30px rgba(120,170,230,0.25);
+  background:rgba(20,34,52,0.9);
 }
 
 /* ============ 按钮 ============ */
@@ -142,15 +214,15 @@ body{
   display:inline-block;
   padding:14px 44px;
   background:transparent;
-  border:1px solid rgba(160,200,240,0.35);
+  border:1px solid rgba(160,200,240,0.45);
   border-radius:60px;
-  color:#b8d0e8;
+  color:#c8dcf0;
   font-size:.92rem;
   letter-spacing:5px;
   cursor:pointer;
   transition:all .4s ease;
   font-family:"Georgia","宋体",serif;
-  text-shadow:0 0 10px rgba(160,200,240,0.2);
+  text-shadow:0 0 10px rgba(160,200,240,0.25);
   position:relative;
   overflow:hidden;
   touch-action:manipulation;
@@ -160,33 +232,37 @@ body{
 .btn::before{
   content:"";position:absolute;top:0;left:-100%;
   width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(160,210,255,0.15),transparent);
+  background:linear-gradient(90deg,transparent,rgba(160,210,255,0.18),transparent);
   transition:left .6s ease;
 }
 .btn:active{transform:scale(0.97)}
 .btn:hover::before,.btn:active::before{left:100%}
 .btn:hover,.btn:active{
-  border-color:rgba(180,220,255,0.7);
-  color:#d8e8ff;
-  box-shadow:0 0 35px rgba(100,160,220,0.25),inset 0 0 20px rgba(120,180,240,0.08);
+  border-color:rgba(200,225,255,0.8);
+  color:#e8f2ff;
+  box-shadow:0 0 35px rgba(100,160,220,0.3),inset 0 0 20px rgba(120,180,240,0.1);
+}
+.btn:disabled{
+  opacity:.3;
+  pointer-events:none;
 }
 .btn.danger{
-  border-color:rgba(180,80,80,0.4);
-  color:#c08888;
+  border-color:rgba(180,80,80,0.5);
+  color:#d09898;
 }
 .btn.danger:hover,.btn.danger:active{
-  border-color:rgba(200,100,100,0.7);
-  color:#e0a0a0;
-  box-shadow:0 0 35px rgba(180,60,60,0.2);
+  border-color:rgba(200,100,100,0.8);
+  color:#f0b0b0;
+  box-shadow:0 0 35px rgba(180,60,60,0.25);
 }
 .btn.amber{
-  border-color:rgba(200,160,80,0.4);
-  color:#c8a860;
+  border-color:rgba(200,160,80,0.5);
+  color:#d8b870;
 }
 .btn.amber:hover,.btn.amber:active{
-  border-color:rgba(220,180,100,0.7);
-  color:#e8c880;
-  box-shadow:0 0 35px rgba(200,160,80,0.25);
+  border-color:rgba(220,180,100,0.8);
+  color:#f0d090;
+  box-shadow:0 0 35px rgba(200,160,80,0.3);
 }
 
 .btn-group{display:flex;flex-direction:column;gap:14px;align-items:center}
@@ -202,8 +278,8 @@ body{
   position:absolute;
   width:100px;height:140px;
   border-radius:55px 55px 8px 8px;
-  background:linear-gradient(180deg,rgba(40,60,85,0.35),rgba(20,35,55,0.2));
-  border:1px solid rgba(100,140,180,0.1);
+  background:linear-gradient(180deg,rgba(50,75,105,0.45),rgba(28,48,72,0.25));
+  border:1px solid rgba(120,160,210,0.15);
   box-shadow:inset 0 10px 30px rgba(0,0,0,0.4);
   transition:all .5s ease;
 }
@@ -215,7 +291,7 @@ body{
   position:absolute;
   width:70px;height:120px;
   border-radius:40px 40px 12px 12px;
-  background:radial-gradient(ellipse at 50% 20%,rgba(190,215,240,0.12),transparent 70%);
+  background:radial-gradient(ellipse at 50% 20%,rgba(200,225,250,0.18),transparent 70%);
   filter:blur(8px);
   transition:all 1s ease;
 }
@@ -226,43 +302,43 @@ body{
 /* ============ 对话与互动 ============ */
 .dialogue{
   font-size:.95rem;line-height:2;
-  color:#a8c0d8;max-width:340px;
+  color:#b8ccdf;max-width:340px;
   text-align:left;margin-bottom:24px;
 }
 .dialogue .speaker{
-  color:#c8a84a;font-style:italic;
+  color:#d8b870;font-style:italic;
   font-size:.82rem;letter-spacing:2px;
   display:block;margin-bottom:4px;
 }
-.dialogue .speaker.you{color:#6a9ac8}
-.dialogue .speaker.amber{color:#d4a84a;text-shadow:0 0 10px rgba(200,160,80,0.3)}
+.dialogue .speaker.you{color:#7aaad8}
+.dialogue .speaker.amber{color:#e0b860;text-shadow:0 0 10px rgba(220,180,100,0.35)}
 .dialogue p{margin-bottom:10px}
 .dialogue .whisper{
-  color:#6a8298;font-style:italic;
+  color:#7a98b8;font-style:italic;
   font-size:.85rem;padding-left:16px;
-  border-left:2px solid rgba(120,160,200,0.15);
+  border-left:2px solid rgba(140,180,220,0.2);
   margin:10px 0;
 }
 
 /* 问题卡片 */
 .question-card{
   width:100%;max-width:340px;
-  background:rgba(12,22,34,0.7);
-  border:1px solid rgba(200,160,80,0.2);
+  background:rgba(16,28,44,0.85);
+  border:1px solid rgba(200,160,80,0.3);
   border-radius:16px;
-  padding:20px 18px;
+  padding:22px 20px;
   margin-bottom:24px;
-  box-shadow:0 0 40px rgba(200,160,80,0.08);
+  box-shadow:0 0 40px rgba(200,160,80,0.1);
 }
 .question-label{
   font-size:.6rem;letter-spacing:4px;
-  color:#8a6a3a;font-family:"Arial",sans-serif;
-  margin-bottom:12px;
+  color:#a08050;font-family:"Arial",sans-serif;
+  margin-bottom:14px;
   text-transform:uppercase;
 }
 .question-text{
   font-size:1.05rem;line-height:1.9;
-  color:#d0c0a0;margin-bottom:20px;
+  color:#e0d0b0;margin-bottom:22px;
   font-style:italic;
 }
 .choice-group{
@@ -272,9 +348,9 @@ body{
   flex:1;
   padding:12px 0;
   background:transparent;
-  border:1px solid rgba(200,160,80,0.3);
+  border:1px solid rgba(200,160,80,0.4);
   border-radius:12px;
-  color:#c8a860;
+  color:#d8b870;
   font-size:.88rem;
   letter-spacing:3px;
   cursor:pointer;
@@ -285,41 +361,41 @@ body{
 }
 .choice-btn:active{transform:scale(0.96)}
 .choice-btn:hover,.choice-btn:active{
-  border-color:rgba(220,180,100,0.7);
-  color:#e8c880;
-  box-shadow:0 0 25px rgba(200,160,80,0.2);
-}
-.choice-btn.selected{
   border-color:rgba(220,180,100,0.8);
   color:#f0d090;
-  background:rgba(200,160,80,0.08);
   box-shadow:0 0 25px rgba(200,160,80,0.25);
+}
+.choice-btn.selected{
+  border-color:rgba(220,180,100,0.9);
+  color:#f8e0a0;
+  background:rgba(200,160,80,0.12);
+  box-shadow:0 0 25px rgba(200,160,80,0.3);
 }
 
 /* ============ 结局 ============ */
 .ending-title{
   font-size:1.5rem;letter-spacing:6px;
-  color:#c8d8e8;margin-bottom:20px;
-  text-shadow:0 0 40px rgba(140,180,220,0.3);
+  color:#e0ecf8;margin-bottom:20px;
+  text-shadow:0 0 40px rgba(160,200,240,0.35);
   font-style:italic;
 }
 .ending-subtitle{
   font-size:.7rem;letter-spacing:5px;
-  color:#4a6a8a;margin-bottom:32px;
+  color:#6a8aaa;margin-bottom:32px;
   font-family:"Arial",sans-serif;
 }
 .ending-text{
   font-size:.95rem;line-height:2.1;
-  color:#8ca4b8;max-width:340px;
+  color:#a0b8d0;max-width:340px;
   margin:0 auto 36px;text-align:center;
 }
 .ending-text .wound{
-  color:#b5534a;font-style:italic;
-  text-shadow:0 0 14px rgba(180,60,50,0.25);
+  color:#c86858;font-style:italic;
+  text-shadow:0 0 14px rgba(200,80,60,0.3);
 }
 .ending-text .amber-text{
-  color:#c8a84a;font-style:italic;
-  text-shadow:0 0 14px rgba(200,160,80,0.3);
+  color:#e0b860;font-style:italic;
+  text-shadow:0 0 14px rgba(220,180,100,0.35);
 }
 
 /* ============ 信物 ============ */
@@ -329,35 +405,35 @@ body{
   display:flex;align-items:center;justify-content:center;
   font-size:2.2rem;
   border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,rgba(200,160,80,0.2),rgba(120,80,30,0.05));
-  border:1px solid rgba(200,160,80,0.3);
-  box-shadow:0 0 40px rgba(200,160,80,0.2),inset 0 0 30px rgba(200,160,80,0.1);
+  background:radial-gradient(circle at 35% 35%,rgba(220,180,100,0.25),rgba(140,90,40,0.08));
+  border:1px solid rgba(220,180,100,0.4);
+  box-shadow:0 0 40px rgba(220,180,100,0.25),inset 0 0 30px rgba(220,180,100,0.12);
   animation:tokenGlow 3s ease-in-out infinite;
 }
-@keyframes tokenGlow{0%,100%{box-shadow:0 0 40px rgba(200,160,80,0.2),inset 0 0 30px rgba(200,160,80,0.1)}50%{box-shadow:0 0 60px rgba(200,160,80,0.35),inset 0 0 40px rgba(200,160,80,0.15)}}
+@keyframes tokenGlow{0%,100%{box-shadow:0 0 40px rgba(220,180,100,0.25),inset 0 0 30px rgba(220,180,100,0.12)}50%{box-shadow:0 0 60px rgba(220,180,100,0.4),inset 0 0 40px rgba(220,180,100,0.18)}}
 
 .token-name{
   font-size:.65rem;letter-spacing:4px;
-  color:#8a6a3a;margin-bottom:28px;
+  color:#a08050;margin-bottom:28px;
   font-family:"Arial",sans-serif;
 }
 
 /* ============ 票根小标 ============ */
 .ticket-stub{
-  width:220px;
-  border:1px dashed rgba(140,180,220,0.2);
+  width:230px;
+  border:1px dashed rgba(160,200,240,0.25);
   border-radius:8px;
   padding:14px;
   margin:0 auto 28px;
   font-size:.6rem;letter-spacing:2px;
-  color:#4a6a8a;font-family:"Courier New",monospace;
-  background:rgba(12,22,34,0.6);
+  color:#6a8aaa;font-family:"Courier New",monospace;
+  background:rgba(16,28,44,0.7);
   position:relative;
 }
 .ticket-stub::before,.ticket-stub::after{
   content:"";position:absolute;width:10px;height:10px;
-  background:#050a10;border-radius:50%;
-  border:1px solid rgba(140,180,220,0.12);
+  background:#0a1220;border-radius:50%;
+  border:1px solid rgba(160,200,240,0.15);
 }
 .ticket-stub::before{left:-5px;top:50%;transform:translateY(-50%)}
 .ticket-stub::after{right:-5px;top:50%;transform:translateY(-50%)}
@@ -366,8 +442,8 @@ body{
   margin-bottom:5px;
 }
 .ticket-stub .stub-line:last-child{margin-bottom:0}
-.ticket-stub .stub-label{color:#3a5a7a}
-.ticket-stub .stub-value{color:#7a9ab8}
+.ticket-stub .stub-label{color:#5a7a9a}
+.ticket-stub .stub-value{color:#a0bcd4}
 
 /* ============ 进度 ============ */
 .carriage-dots{
@@ -377,66 +453,49 @@ body{
 }
 .carriage-dot{
   width:6px;height:6px;border-radius:50%;
-  background:rgba(50,75,100,0.4);
+  background:rgba(70,95,125,0.5);
   transition:all .5s;
 }
-.carriage-dot.active{background:rgba(160,200,240,0.7);box-shadow:0 0 10px rgba(160,210,250,0.5)}
-.carriage-dot.visited{background:rgba(120,160,200,0.4)}
+.carriage-dot.active{background:rgba(180,210,245,0.8);box-shadow:0 0 10px rgba(180,220,255,0.6)}
+.carriage-dot.visited{background:rgba(140,180,220,0.5)}
 
 /* ============ 飘雪 ============ */
 .float-snowflake{
-  position:fixed;color:rgba(190,220,250,0.1);pointer-events:none;z-index:6;
+  position:fixed;color:rgba(210,230,255,0.15);pointer-events:none;z-index:6;
   animation:floatDown linear infinite;user-select:none;
 }
-@keyframes floatDown{0%{transform:translateY(-40px) rotate(0deg);opacity:0}10%{opacity:.5}90%{opacity:.4}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
-
-/* ============ 雾玻璃 ============ */
-.window-glass{
-  position:fixed;inset:0;z-index:20;pointer-events:none;
-  background:radial-gradient(ellipse at 25% 15%,rgba(200,225,245,0.05),transparent 55%);
-  backdrop-filter:blur(0.8px);
-  -webkit-backdrop-filter:blur(0.8px);
-  mask-image:radial-gradient(circle at var(--mx,50%) var(--my,50%),transparent 60px,rgba(0,0,0,0.9) 120px);
-  -webkit-mask-image:radial-gradient(circle at var(--mx,50%) var(--my,50%),transparent 60px,rgba(0,0,0,0.9) 120px);
-  transition:mask-image 0.3s ease-out;
-}
+@keyframes floatDown{0%{transform:translateY(-40px) rotate(0deg);opacity:0}10%{opacity:.6}90%{opacity:.5}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
 
 /* ============ 提示 ============ */
 .hint{
   position:fixed;bottom:calc(52px + env(safe-area-inset-bottom,0px));
   left:50%;transform:translateX(-50%);
   font-size:.62rem;letter-spacing:3px;
-  color:rgba(140,170,200,0.25);
+  color:rgba(160,190,220,0.35);
   font-style:italic;z-index:25;pointer-events:none;
   animation:hintPulse 2.5s ease-in-out infinite;
   white-space:nowrap;
 }
-@keyframes hintPulse{0%,100%{opacity:.25}50%{opacity:.6}}
+@keyframes hintPulse{0%,100%{opacity:.3}50%{opacity:.7}}
 
 /* ============ 问题计数器 ============ */
 .question-counter{
   font-size:.62rem;letter-spacing:4px;
-  color:#6a5a3a;font-family:"Courier New",monospace;
+  color:#a08050;font-family:"Courier New",monospace;
   margin-bottom:16px;
 }
-
-/* ============ 心跳 ============ */
-.heartbeat{
-  display:inline-block;
-  animation:heartbeat 1.5s ease-in-out infinite;
-}
-@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.15)}30%{transform:scale(1)}45%{transform:scale(1.1)}60%{transform:scale(1)}}
 
 /* ============ 响应式 ============ */
 @media(max-height:640px){
   .title{font-size:1.7rem;letter-spacing:8px}
   .subtitle{margin-bottom:32px}
-  .ticket{width:250px;padding:18px 16px;margin-bottom:28px}
+  .ticket{width:260px;padding:20px 18px}
   .btn{padding:12px 34px;font-size:.85rem;letter-spacing:4px}
   .dialogue{font-size:.88rem}
   .ending-text{font-size:.88rem}
   .token{width:80px;height:80px;font-size:1.8rem}
   .question-text{font-size:.95rem}
+  .name-input-wrap{width:260px}
 }
 </style>
 </head>
@@ -462,36 +521,50 @@ body{
   <div class="passenger p3" id="passenger3" style="opacity:0"></div>
 </div>
 
-<div class="window-glass" id="windowGlass"></div>
-
-<!-- ============ 起始 ============ -->
+<!-- ============ 起始：输入名字 ============ -->
 <div class="screen active" id="screen-start">
-  <div class="title">雪国列车</div>
-  <div class="subtitle">SNOW COUNTRY EXPRESS</div>
-  
-  <div class="ticket" id="ticket">
-    <div class="ticket-header">BOARDING PASS · 乘车凭证</div>
-    <div class="ticket-route">本站 <span class="arrow">→</span> 雪国</div>
-    <div class="ticket-seat">座位号 <span class="seat-num">07A</span></div>
-    <div class="ticket-info">
-      <span>日期 <span class="value">今夜</span></span>
-      <span>时间 <span class="value">21:47</span></span>
+  <div class="title">冰岛列车</div>
+  <div class="subtitle">ICELAND EXPRESS · 即将运行</div>
+
+  <div class="ending-text" style="margin-bottom:32px;font-size:1rem">
+    一辆去往冰岛的列车即将运行。<br>
+    窗外是永夜，铁轨延伸进雪原深处。<br><br>
+    列车员递给你一张空白票根。<br>
+    <span style="color:#e0b860;font-style:italic">"请写下你的名字。"</span>
+  </div>
+
+  <div class="name-input-wrap">
+    <input type="text" class="name-input" id="nameInput" placeholder="输入你的名字" maxlength="10" autocomplete="off">
+  </div>
+
+  <button class="btn" id="btn-print" disabled>生 成 票 根</button>
+</div>
+
+<!-- ============ 票根生成 ============ -->
+<div class="screen" id="screen-ticket">
+  <div class="ending-subtitle" style="margin-bottom:28px">你 的 票 根</div>
+
+  <div class="ticket-wrap">
+    <div class="ticket" id="ticket">
+      <div class="ticket-divider" id="ticketDivider"></div>
+      <div class="ticket-header">BOARDING PASS · 乘车凭证</div>
+      <div class="ticket-route">雪原站 <span class="arrow">→</span> 冰岛</div>
+      <div class="ticket-name">乘客 <span class="name-value" id="ticketName">—</span></div>
+      <div class="ticket-seat">座位号 <span class="seat-num">07A</span></div>
+      <div class="ticket-info">
+        <span>日期 <span class="value">今夜</span></span>
+        <span>时间 <span class="value">21:47</span></span>
+      </div>
+      <div class="ticket-serial">NO. SN-0047</div>
     </div>
-    <div class="ticket-serial">NO. SN-0047</div>
   </div>
 
-  <div class="ending-text" style="margin-bottom:36px">
-    零点的站台，只有你一个人。<br>
-    雪落在铁轨上，发出细微的声响。<br>
-    列车员看着你，眼神很平静。<br><br>
-    他说：<br>
-    <span style="color:#c8a84a;font-style:italic">"一旦登车，无法回头。"</span>
+  <div class="ending-text" style="font-size:.9rem;margin-bottom:28px" id="ticketHint">
+    列车员看着你，眼神很平静。<br>
+    <span style="color:#e0b860;font-style:italic">"裁剪票根，即可登车。"</span>
   </div>
 
-  <div class="btn-group">
-    <button class="btn" id="btn-board">登 上 列 车</button>
-    <button class="btn danger" id="btn-refuse">拒 绝 · 离 开</button>
-  </div>
+  <button class="btn" id="btn-board">裁 剪 票 根 · 登 车</button>
 </div>
 
 <!-- ============ 拒绝 ============ -->
@@ -519,7 +592,7 @@ body{
 
 <!-- ============ 上车 ============ -->
 <div class="screen" id="screen-carriage">
-  <div class="ending-title">雪 国 列 车</div>
+  <div class="ending-title">冰 岛 列 车</div>
   <div class="ending-subtitle">21:47 · 车 厢 内</div>
 
   <div class="ending-text" style="margin-bottom:36px">
@@ -544,7 +617,7 @@ body{
     <button class="btn amber" id="btn-p3" style="width:100%">对面座位 · 戴耳机的女人</button>
   </div>
 
-  <div class="hint" style="position:static;margin-top:28px;animation:none;opacity:.4">
+  <div class="hint" style="position:static;margin-top:28px;animation:none;opacity:.5">
     她 们 都 叫 · 琥 珀
   </div>
 </div>
@@ -594,16 +667,7 @@ body{
   <div class="token">🧣</div>
   <div class="token-name">信 物 · 褪 色 的 围 巾</div>
 
-  <div class="ending-text" id="p1-ending-text">
-    琥珀听完你的回答，沉默了很久。<br>
-    然后她从口袋里掏出一条褪色的围巾。<br><br>
-    她说：<br>
-    <span class="amber-text">"这条围巾，我等了十年，<br>
-    也没能亲手还给她。<br>
-    你拿着吧。"</span><br><br>
-    <span class="wound">她转过头，继续看着窗外。<br>
-    窗上她画的圈，已经被新的雾气盖住了。</span>
-  </div>
+  <div class="ending-text" id="p1-ending-text"></div>
 
   <div class="btn-group">
     <button class="btn" id="btn-p1-back">回 到 车 厢</button>
@@ -656,15 +720,7 @@ body{
   <div class="token">📖</div>
   <div class="token-name">信 物 · 泛 黄 的 纸 片</div>
 
-  <div class="ending-text" id="p2-ending-text">
-    琥珀听完你的回答，把书合上。<br>
-    然后从书里抽出一张泛黄的纸片。<br><br>
-    她说：<br>
-    <span class="amber-text">"这是她最后住过的地方。<br>
-    我从来没有勇气去。<br>
-    你拿着吧，也许你比我勇敢。"</span><br><br>
-    <span class="wound">那本书的最后一页，永远都是空白的。</span>
-  </div>
+  <div class="ending-text" id="p2-ending-text"></div>
 
   <div class="btn-group">
     <button class="btn" id="btn-p2-back">回 到 车 厢</button>
@@ -717,15 +773,7 @@ body{
   <div class="token">🎧</div>
   <div class="token-name">信 物 · 一 只 旧 耳 机</div>
 
-  <div class="ending-text" id="p3-ending-text">
-    琥珀听完你的回答，摘下一边耳机。<br>
-    把它放在你的手心里。<br><br>
-    她说：<br>
-    <span class="amber-text">"拿着吧。<br>
-    如果你在某一天听见这首歌，<br>
-    那就是她在提醒你——别等太久。"</span><br><br>
-    <span class="wound">她爱的，早就变成了一个不会唱完的人。</span>
-  </div>
+  <div class="ending-text" id="p3-ending-text"></div>
 
   <div class="btn-group">
     <button class="btn" id="btn-p3-back">回 到 车 厢</button>
@@ -749,11 +797,12 @@ body{
     <span class="amber-text">琥珀到底是谁？<br>
     她为什么出现在每一个人的故事里？</span><br><br>
     列车广播响起：<br>
-    <span style="color:#c8a84a;font-style:italic">"下一站，终点站。"</span><br><br>
+    <span style="color:#e0b860;font-style:italic">"下一站，终点站。"</span><br><br>
     <span class="wound">故事，未完待续。</span>
   </div>
 
   <div class="ticket-stub" id="followTicket">
+    <div class="stub-line"><span class="stub-label">乘客</span><span class="stub-value" id="followName">—</span></div>
     <div class="stub-line"><span class="stub-label">讨论对象</span><span class="stub-value">琥珀</span></div>
     <div class="stub-line"><span class="stub-label">持有信物</span><span class="stub-value" id="followTokenLabel">—</span></div>
     <div class="stub-line"><span class="stub-label">状态</span><span class="stub-value">未完待续</span></div>
@@ -776,6 +825,7 @@ body{
 // ==================== 状态 ====================
 const state = {
   boarded: false,
+  playerName: '',
   storiesHeard: new Set(),
   currentScreen: 'screen-start',
   currentToken: null,
@@ -790,11 +840,12 @@ const bg = document.getElementById('bg');
 const carriageInterior = document.getElementById('carriageInterior');
 const readingLamp = document.getElementById('readingLamp');
 const carriageScene = document.getElementById('carriageScene');
-const windowGlass = document.getElementById('windowGlass');
 const carriageDots = document.getElementById('carriageDots');
 const passenger1 = document.getElementById('passenger1');
 const passenger2 = document.getElementById('passenger2');
 const passenger3 = document.getElementById('passenger3');
+const nameInput = document.getElementById('nameInput');
+const btnPrint = document.getElementById('btn-print');
 
 // ==================== 页面切换 ====================
 function showScreen(id) {
@@ -805,7 +856,7 @@ function showScreen(id) {
     state.currentScreen = id;
   }
 
-  if (id === 'screen-start' || id === 'screen-refuse') {
+  if (id === 'screen-start' || id === 'screen-ticket' || id === 'screen-refuse') {
     bg.className = 'bg station';
     carriageInterior.classList.remove('show');
     readingLamp.classList.remove('show');
@@ -865,18 +916,52 @@ function updateDots(idx) {
   });
 }
 
+// ==================== 名字输入 ====================
+nameInput.addEventListener('input', () => {
+  btnPrint.disabled = nameInput.value.trim().length === 0;
+});
+
+btnPrint.addEventListener('click', () => {
+  state.playerName = nameInput.value.trim();
+  document.getElementById('ticketName').textContent = state.playerName;
+  showScreen('screen-ticket');
+});
+
+// ==================== 裁剪票根 ====================
+document.getElementById('btn-board').addEventListener('click', () => {
+  const ticket = document.getElementById('ticket');
+  const hint = document.getElementById('ticketHint');
+
+  // 先显示裁剪线移动
+  hint.innerHTML = '正在裁剪票根……';
+  ticket.classList.add('cutting');
+
+  setTimeout(() => {
+    ticket.classList.add('cut');
+    hint.innerHTML = '<span style="color:#e0b860;font-style:italic">票根已裁剪 · 欢迎登车</span>';
+  }, 900);
+
+  setTimeout(() => {
+    state.boarded = true;
+    showScreen('screen-carriage');
+    // 重置票根状态
+    setTimeout(() => {
+      ticket.classList.remove('cutting', 'cut');
+      hint.innerHTML = '列车员看着你，眼神很平静。<br><span style="color:#e0b860;font-style:italic">"裁剪票根，即可登车。"</span>';
+    }, 500);
+  }, 2200);
+});
+
 // ==================== 选项处理 ====================
 document.querySelectorAll('.choice-btn').forEach(btn => {
   btn.addEventListener('click', function() {
     const q = this.dataset.q;
     const answer = this.dataset.answer;
     const screenId = this.closest('.screen').id;
-    
-    // 高亮选中
+
     this.parentElement.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
     this.classList.add('selected');
 
-    // 记录答案
     if (screenId.includes('p1')) {
       if (q === '1') state.p1Answers[0] = answer;
       else state.p1Answers[1] = answer;
@@ -888,7 +973,6 @@ document.querySelectorAll('.choice-btn').forEach(btn => {
       else state.p3Answers[1] = answer;
     }
 
-    // 延迟跳转到下一题或结局
     setTimeout(() => {
       if (screenId === 'screen-p1-q1') showScreen('screen-p1-q2');
       else if (screenId === 'screen-p1-q2') showP1Ending();
@@ -905,7 +989,7 @@ function showP1Ending() {
   const ans1 = state.p1Answers[0] || '值得';
   const ans2 = state.p1Answers[1] || '愿意';
   let text = '';
-  
+
   if (ans1 === '值得' && ans2 === '愿意') {
     text = '琥珀听完你的回答，笑了一下。<br>她说：<span class="amber-text">"你和我一样傻。"</span><br><br>';
   } else if (ans1 === '值得' && ans2 === '不愿意') {
@@ -915,11 +999,11 @@ function showP1Ending() {
   } else {
     text = '琥珀听完你的回答，把围巾收回去了一半。<br>她说：<span class="amber-text">"也许你是对的。"</span><br><br>';
   }
-  
+
   text += '然后她把那条褪色的围巾放在你手里。<br><br>' +
     '<span class="amber-text">"这条围巾，我等了十年，<br>也没能亲手还给她。<br>你拿着吧。"</span><br><br>' +
     '<span class="wound">她转过头，继续看着窗外。<br>窗上她画的圈，已经被新的雾气盖住了。</span>';
-  
+
   document.getElementById('p1-ending-text').innerHTML = text;
   state.storiesHeard.add('p1');
   state.currentToken = '🧣';
@@ -931,7 +1015,7 @@ function showP2Ending() {
   const ans1 = state.p2Answers[0] || '要';
   const ans2 = state.p2Answers[1] || '值得';
   let text = '';
-  
+
   if (ans1 === '要' && ans2 === '值得') {
     text = '琥珀听完你的回答，把书合上。<br>她说：<span class="amber-text">"你和我一样，相信真心不会白费。"</span><br><br>';
   } else if (ans1 === '要' && ans2 === '不值得') {
@@ -941,11 +1025,11 @@ function showP2Ending() {
   } else {
     text = '琥珀听完你的回答，把书抱得更紧了。<br>她说：<span class="amber-text">"也许你是对的。"</span><br><br>';
   }
-  
+
   text += '然后她从书里抽出一张泛黄的纸片。<br><br>' +
     '<span class="amber-text">"这是她最后住过的地方。<br>我从来没有勇气去。<br>你拿着吧，也许你比我勇敢。"</span><br><br>' +
     '<span class="wound">那本书的最后一页，永远都是空白的。</span>';
-  
+
   document.getElementById('p2-ending-text').innerHTML = text;
   state.storiesHeard.add('p2');
   state.currentToken = '📖';
@@ -957,7 +1041,7 @@ function showP3Ending() {
   const ans1 = state.p3Answers[0] || '深情';
   const ans2 = state.p3Answers[1] || '愿意';
   let text = '';
-  
+
   if (ans1 === '深情' && ans2 === '愿意') {
     text = '琥珀听完你的回答，把耳机递给你。<br>她说：<span class="amber-text">"你和我一样，愿意记住。"</span><br><br>';
   } else if (ans1 === '深情' && ans2 === '不愿意') {
@@ -967,11 +1051,11 @@ function showP3Ending() {
   } else {
     text = '琥珀听完你的回答，把耳机收回去了一边。<br>她说：<span class="amber-text">"也许你是对的。"</span><br><br>';
   }
-  
+
   text += '然后她把那只旧耳机放在你手心里。<br><br>' +
     '<span class="amber-text">"拿着吧。<br>如果你在某一天听见这首歌，<br>那就是她在提醒你——别等太久。"</span><br><br>' +
     '<span class="wound">她爱的，早就变成了一个不会唱完的人。</span>';
-  
+
   document.getElementById('p3-ending-text').innerHTML = text;
   state.storiesHeard.add('p3');
   state.currentToken = '🎧';
@@ -980,44 +1064,22 @@ function showP3Ending() {
 }
 
 // ==================== 按钮事件 ====================
-document.getElementById('btn-board').addEventListener('click', () => {
-  state.boarded = true;
-  const ticket = document.getElementById('ticket');
-  ticket.style.transition = 'all 1s ease';
-  ticket.style.transform = 'translateY(-200px) rotate(20deg)';
-  ticket.style.opacity = '0';
-  setTimeout(() => {
-    showScreen('screen-carriage');
-    ticket.style.transform = '';
-    ticket.style.opacity = '1';
-    ticket.style.transition = '';
-  }, 800);
-});
-
-document.getElementById('btn-refuse').addEventListener('click', () => {
-  showScreen('screen-refuse');
-});
-document.getElementById('btn-restart1').addEventListener('click', () => {
-  showScreen('screen-start');
-});
-document.getElementById('btn-explore').addEventListener('click', () => {
-  showScreen('screen-choose');
-});
+document.getElementById('btn-restart1').addEventListener('click', () => showScreen('screen-start'));
+document.getElementById('btn-explore').addEventListener('click', () => showScreen('screen-choose'));
 
 document.getElementById('btn-p1').addEventListener('click', () => showScreen('screen-p1-q1'));
 document.getElementById('btn-p2').addEventListener('click', () => showScreen('screen-p2-q1'));
 document.getElementById('btn-p3').addEventListener('click', () => showScreen('screen-p3-q1'));
 
-// 回到车厢
 document.getElementById('btn-p1-back').addEventListener('click', () => showScreen('screen-choose'));
 document.getElementById('btn-p2-back').addEventListener('click', () => showScreen('screen-choose'));
 document.getElementById('btn-p3-back').addEventListener('click', () => showScreen('screen-choose'));
 
-// 继续讨论问题 → 未完待续
 document.getElementById('btn-p1-follow').addEventListener('click', () => {
   document.getElementById('followToken').textContent = '🧣';
   document.getElementById('followTokenName').textContent = '信 物 · 褪 色 的 围 巾';
   document.getElementById('followTokenLabel').textContent = '褪色的围巾';
+  document.getElementById('followName').textContent = state.playerName;
   document.getElementById('followText').innerHTML = `
     你决定继续和琥珀讨论问题。<br>
     你握着那条褪色的围巾，<br>
@@ -1027,7 +1089,7 @@ document.getElementById('btn-p1-follow').addEventListener('click', () => {
     <span class="amber-text">琥珀到底是谁？<br>
     她为什么出现在每一个人的故事里？</span><br><br>
     列车广播响起：<br>
-    <span style="color:#c8a84a;font-style:italic">"下一站，终点站。"</span><br><br>
+    <span style="color:#e0b860;font-style:italic">"下一站，终点站。"</span><br><br>
     <span class="wound">故事，未完待续。</span>
   `;
   showScreen('screen-follow');
@@ -1037,6 +1099,7 @@ document.getElementById('btn-p2-follow').addEventListener('click', () => {
   document.getElementById('followToken').textContent = '📖';
   document.getElementById('followTokenName').textContent = '信 物 · 泛 黄 的 纸 片';
   document.getElementById('followTokenLabel').textContent = '泛黄的纸片';
+  document.getElementById('followName').textContent = state.playerName;
   document.getElementById('followText').innerHTML = `
     你决定继续和琥珀讨论问题。<br>
     你握着那张泛黄的纸片，<br>
@@ -1046,7 +1109,7 @@ document.getElementById('btn-p2-follow').addEventListener('click', () => {
     <span class="amber-text">琥珀到底是谁？<br>
     她为什么出现在每一个人的故事里？</span><br><br>
     列车广播响起：<br>
-    <span style="color:#c8a84a;font-style:italic">"下一站，终点站。"</span><br><br>
+    <span style="color:#e0b860;font-style:italic">"下一站，终点站。"</span><br><br>
     <span class="wound">故事，未完待续。</span>
   `;
   showScreen('screen-follow');
@@ -1056,6 +1119,7 @@ document.getElementById('btn-p3-follow').addEventListener('click', () => {
   document.getElementById('followToken').textContent = '🎧';
   document.getElementById('followTokenName').textContent = '信 物 · 一 只 旧 耳 机';
   document.getElementById('followTokenLabel').textContent = '一只旧耳机';
+  document.getElementById('followName').textContent = state.playerName;
   document.getElementById('followText').innerHTML = `
     你决定继续和琥珀讨论问题。<br>
     你戴上那只旧耳机，<br>
@@ -1065,7 +1129,7 @@ document.getElementById('btn-p3-follow').addEventListener('click', () => {
     <span class="amber-text">琥珀到底是谁？<br>
     她为什么出现在每一个人的故事里？</span><br><br>
     列车广播响起：<br>
-    <span style="color:#c8a84a;font-style:italic">"下一站，终点站。"</span><br><br>
+    <span style="color:#e0b860;font-style:italic">"下一站，终点站。"</span><br><br>
     <span class="wound">故事，未完待续。</span>
   `;
   showScreen('screen-follow');
@@ -1079,31 +1143,11 @@ document.getElementById('btn-follow-restart').addEventListener('click', () => {
   state.p1Answers = [];
   state.p2Answers = [];
   state.p3Answers = [];
+  state.playerName = '';
+  nameInput.value = '';
+  btnPrint.disabled = true;
   document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
   showScreen('screen-start');
-});
-
-// ==================== 擦雾气 ====================
-let fogTimer = null;
-document.addEventListener('touchmove', (e) => {
-  const touch = e.touches[0];
-  windowGlass.style.setProperty('--mx', touch.clientX + 'px');
-  windowGlass.style.setProperty('--my', touch.clientY + 'px');
-  clearTimeout(fogTimer);
-  fogTimer = setTimeout(() => {
-    windowGlass.style.setProperty('--mx', '50%');
-    windowGlass.style.setProperty('--my', '50%');
-  }, 3000);
-}, { passive: true });
-
-document.addEventListener('mousemove', (e) => {
-  windowGlass.style.setProperty('--mx', e.clientX + 'px');
-  windowGlass.style.setProperty('--my', e.clientY + 'px');
-  clearTimeout(fogTimer);
-  fogTimer = setTimeout(() => {
-    windowGlass.style.setProperty('--mx', '50%');
-    windowGlass.style.setProperty('--my', '50%');
-  }, 3000);
 });
 
 // ==================== 飘雪 ====================
@@ -1117,7 +1161,7 @@ document.addEventListener('mousemove', (e) => {
     f.style.animationDuration = (Math.random() * 12 + 10) + 's';
     f.style.animationDelay = (Math.random() * 20) + 's';
     f.style.fontSize = (Math.random() * 0.8 + 0.6) + 'rem';
-    f.style.opacity = (Math.random() * 0.12 + 0.04);
+    f.style.opacity = (Math.random() * 0.15 + 0.06);
     document.body.appendChild(f);
   }
 })();
@@ -1140,7 +1184,7 @@ document.addEventListener('mousemove', (e) => {
         y: Math.random() * h,
         r: Math.random() * 2.6 + 0.6,
         d: Math.random() * 0.9 + 0.3,
-        o: Math.random() * 0.55 + 0.25,
+        o: Math.random() * 0.6 + 0.3,
         wind: Math.random() * 1.3 - 0.5,
         phase: Math.random() * Math.PI * 2
       });
@@ -1157,9 +1201,9 @@ document.addEventListener('mousemove', (e) => {
 
   function draw(f) {
     const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2.2);
-    g.addColorStop(0, `rgba(230,245,255,${f.o})`);
-    g.addColorStop(0.5, `rgba(190,225,250,${f.o * 0.6})`);
-    g.addColorStop(1, 'rgba(130,180,230,0)');
+    g.addColorStop(0, `rgba(240,250,255,${f.o})`);
+    g.addColorStop(0.5, `rgba(200,230,255,${f.o * 0.6})`);
+    g.addColorStop(1, 'rgba(150,190,240,0)');
     ctx.beginPath();
     ctx.fillStyle = g;
     ctx.arc(f.x, f.y, f.r * 1.8, 0, Math.PI * 2);
@@ -1178,7 +1222,7 @@ document.addEventListener('mousemove', (e) => {
       if (f.y > h + 15) {
         f.y = -15;
         f.x = Math.random() * w;
-        f.o = Math.random() * 0.55 + 0.25;
+        f.o = Math.random() * 0.6 + 0.3;
         f.wind = Math.random() * 1.3 - 0.5;
       }
       if (f.x > w + 15) f.x = -15;
@@ -1197,17 +1241,6 @@ document.addEventListener('mousemove', (e) => {
   resize();
   render();
 })();
-
-// ==================== 键盘 ====================
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const activeScreen = document.querySelector('.screen.active');
-    if (activeScreen) {
-      const btn = activeScreen.querySelector('.btn:not(.choice-btn)');
-      if (btn) btn.click();
-    }
-  }
-});
 
 // ==================== 初始化 ====================
 showScreen('screen-start');
