@@ -23,6 +23,7 @@ body{
 .bg.carriage{background:linear-gradient(180deg,#0a1220,#0e1a2a 50%,#122236 100%)}
 .bg.amber{background:linear-gradient(180deg,#14100a,#241a0e 50%,#34240e 100%)}
 .bg.crowd{background:linear-gradient(180deg,#1a2430,#243244 50%,#2e4054 100%)}
+.bg.farewell{background:linear-gradient(180deg,#0c1420,#141e2e 50%,#1c2838 100%)}
 
 #snow-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
 
@@ -230,17 +231,15 @@ body{
 
 .btn-group{display:flex;flex-direction:column;gap:14px;align-items:center}
 
-/* ============ 撕角动画层（背景与页面一致） ============ */
+/* ============ 撕角动画层 ============ */
 .cut-overlay{
   position:fixed;inset:0;z-index:50;
   display:none;
   align-items:center;justify-content:center;
-  /* 与整体页面一致的背景 */
   background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%);
 }
 .cut-overlay.active{display:flex}
 
-/* 票根容器（浮动 + 撕角） */
 .cut-ticket-wrap{
   position:relative;
   width:290px;
@@ -254,10 +253,8 @@ body{
   border-radius:12px;
   padding:26px 22px;
   box-shadow:0 20px 50px rgba(0,0,0,0.7),inset 0 1px 0 rgba(200,225,255,0.12);
-  /* 初始状态：完整 */
   clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%);
   transition:clip-path .6s cubic-bezier(.4,.8,.3,1);
-  /* 初始位置在下方 */
   transform:translateY(80px);
   opacity:0;
 }
@@ -277,19 +274,16 @@ body{
 .cut-ticket::before{left:-8px;top:50%;transform:translateY(-50%)}
 .cut-ticket::after{right:-8px;top:60%;transform:translateY(-50%)}
 
-/* 撕角后：右上角被撕掉 */
 .cut-ticket.torn{
   clip-path:polygon(0 0, 82% 0, 100% 18%, 100% 100%, 0 100%);
 }
 
-/* 撕角碎片（右上角小三角形） */
 .torn-corner{
   position:absolute;
   top:0;right:0;
   width:0;height:0;
   z-index:10;
   pointer-events:none;
-  /* 初始：与票根贴合 */
   clip-path:polygon(0 0, 100% 0, 100% 100%);
   background:linear-gradient(225deg,rgba(26,42,62,0.95),rgba(16,28,44,0.98));
   border-left:1px solid rgba(160,200,240,0.3);
@@ -300,23 +294,14 @@ body{
   width:52px;
   height:52px;
 }
-
-/* 撕角动画：小角飞走 */
 .torn-corner.fly{
   animation:cornerFly 1.2s cubic-bezier(.3,.7,.4,1) forwards;
 }
 @keyframes cornerFly{
-  0%{
-    transform:translate(0,0) rotate(0deg);
-    opacity:1;
-  }
-  100%{
-    transform:translate(60px,-60px) rotate(45deg);
-    opacity:0;
-  }
+  0%{transform:translate(0,0) rotate(0deg);opacity:1}
+  100%{transform:translate(60px,-60px) rotate(45deg);opacity:0}
 }
 
-/* 撕角边缘（撕开后的毛边效果） */
 .torn-edge{
   position:absolute;
   top:0;right:0;
@@ -325,17 +310,13 @@ body{
   pointer-events:none;
   opacity:0;
   transition:opacity .4s ease;
-  /* 用不规则的锯齿边缘模拟撕痕 */
   background:
     linear-gradient(135deg, transparent 46%, rgba(200,225,255,0.15) 48%, transparent 50%),
     linear-gradient(160deg, transparent 60%, rgba(160,200,240,0.1) 62%, transparent 64%),
     linear-gradient(200deg, transparent 70%, rgba(160,200,240,0.08) 72%, transparent 74%);
 }
-.torn-edge.show{
-  opacity:1;
-}
+.torn-edge.show{opacity:1}
 
-/* 撕角提示文字 */
 .cut-text{
   position:fixed;
   bottom:20%;left:50%;transform:translateX(-50%);
@@ -349,7 +330,6 @@ body{
 }
 .cut-text.show{opacity:1}
 
-/* 票根内容 */
 .cut-ticket .ticket-header{
   font-size:.6rem;letter-spacing:5px;
   color:#7a9aba;font-family:"Arial",sans-serif;
@@ -395,7 +375,6 @@ body{
   font-family:"Courier New",monospace;
 }
 
-/* 欢迎登车 */
 .welcome-text{
   position:fixed;
   inset:0;
@@ -403,7 +382,6 @@ body{
   align-items:center;justify-content:center;
   flex-direction:column;
   z-index:60;
-  /* 与整体页面一致的背景 */
   background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%);
   pointer-events:none;
 }
@@ -575,12 +553,10 @@ body{
   box-shadow:0 0 60px rgba(200,170,110,0.15),inset 0 1px 0 rgba(220,190,130,0.15);
   position:relative;
   animation:ticketViewIn .8s ease forwards;
-  /* 右上角被撕掉一角 */
   clip-path:polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
 }
 @keyframes ticketViewIn{0%{opacity:0;transform:scale(0.9) rotate(-2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 
-/* 撕角毛边效果 */
 .ticket-view::after{
   content:"";
   position:absolute;
@@ -685,7 +661,7 @@ body{
   text-shadow:0 0 14px rgba(220,180,100,0.35);
 }
 
-/* ============ 信物 ============ */
+/* ============ 信物（冷色调设计） ============ */
 .token-page{
   display:flex;
   flex-direction:column;
@@ -704,22 +680,28 @@ body{
 @keyframes tokenAppear{0%{opacity:0;transform:scale(0.7) rotate(-10deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 
 .token-display.scarf-token{
-  background:radial-gradient(circle at 35% 35%,rgba(120,160,200,0.3),rgba(60,90,130,0.1));
-  border:1px solid rgba(140,180,220,0.4);
-  box-shadow:0 0 50px rgba(120,160,200,0.3),inset 0 0 40px rgba(100,150,200,0.15);
-  color:#a8c8e8;
+  background:radial-gradient(circle at 35% 35%,rgba(100,150,200,0.35),rgba(40,70,110,0.15));
+  border:1px solid rgba(120,170,220,0.45);
+  box-shadow:0 0 50px rgba(100,150,210,0.35),inset 0 0 40px rgba(80,130,190,0.18);
+  color:#b0d0f0;
 }
 .token-display.paper-token{
-  background:radial-gradient(circle at 35% 35%,rgba(100,170,170,0.3),rgba(50,100,100,0.1));
-  border:1px solid rgba(120,190,190,0.4);
-  box-shadow:0 0 50px rgba(100,170,170,0.3),inset 0 0 40px rgba(80,150,150,0.15);
-  color:#a0d0d0;
+  background:radial-gradient(circle at 35% 35%,rgba(80,160,170,0.35),rgba(30,80,90,0.15));
+  border:1px solid rgba(100,180,190,0.45);
+  box-shadow:0 0 50px rgba(80,160,170,0.35),inset 0 0 40px rgba(60,130,140,0.18);
+  color:#b0e0e0;
 }
 .token-display.earphone-token{
-  background:radial-gradient(circle at 35% 35%,rgba(140,130,190,0.3),rgba(80,70,130,0.1));
-  border:1px solid rgba(160,150,210,0.4);
-  box-shadow:0 0 50px rgba(140,130,190,0.3),inset 0 0 40px rgba(120,110,180,0.15);
-  color:#c0b8e0;
+  background:radial-gradient(circle at 35% 35%,rgba(120,110,180,0.35),rgba(60,50,110,0.15));
+  border:1px solid rgba(140,130,200,0.45);
+  box-shadow:0 0 50px rgba(120,110,180,0.35),inset 0 0 40px rgba(100,90,160,0.18);
+  color:#d0c8f0;
+}
+.token-display.relic-token{
+  background:radial-gradient(circle at 35% 35%,rgba(90,120,150,0.3),rgba(40,60,80,0.12));
+  border:1px solid rgba(110,140,170,0.4);
+  box-shadow:0 0 45px rgba(90,120,150,0.3),inset 0 0 35px rgba(70,100,130,0.15);
+  color:#a8c0d8;
 }
 
 .token-name{
@@ -779,36 +761,89 @@ body{
   100%{transform:translateY(-110vh) translateX(20px);opacity:0}
 }
 
-/* ============ 信物持有进度 ============ */
-.token-inventory{
-  display:flex;gap:12px;justify-content:center;
-  margin-bottom:28px;
-}
-.token-slot{
-  width:44px;height:44px;
-  border-radius:50%;
-  border:1px solid rgba(140,170,200,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.2rem;
-  opacity:0.2;
-  transition:all .5s ease;
-  background:rgba(16,28,44,0.5);
-}
-.token-slot.obtained{
-  opacity:1;
-  border-color:rgba(160,200,240,0.5);
-  box-shadow:0 0 20px rgba(140,180,220,0.3);
-  background:rgba(20,40,60,0.8);
-}
-
-/* ============ 三件信物选择 ============ */
-.token-choice-grid{
+/* ============ 拾起物品 ============ */
+.relic-grid{
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:16px;
   width:100%;
   max-width:340px;
   margin-bottom:28px;
+}
+.relic-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px 18px;
+  background:rgba(16,28,44,0.8);
+  border:1px solid rgba(140,170,200,0.25);
+  border-radius:14px;
+  cursor:pointer;
+  transition:all .4s ease;
+  touch-action:manipulation;
+  user-select:none;
+}
+.relic-card:hover,.relic-card:active{
+  border-color:rgba(180,215,255,0.6);
+  background:rgba(22,38,58,0.9);
+  box-shadow:0 0 30px rgba(120,170,230,0.2);
+  transform:translateY(-2px);
+}
+.relic-card.picked{
+  border-color:rgba(160,200,240,0.5);
+  background:rgba(20,40,60,0.9);
+  box-shadow:0 0 20px rgba(140,180,220,0.25);
+}
+.relic-icon{
+  width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+  border-radius:50%;
+  flex-shrink:0;
+  background:radial-gradient(circle,rgba(90,120,150,0.25),transparent 70%);
+  border:1px solid rgba(110,140,170,0.4);
+  color:#a8c0d8;
+}
+.relic-info{
+  flex:1;
+  text-align:left;
+}
+.relic-name{
+  font-size:.85rem;
+  letter-spacing:2px;
+  color:#c0d4e8;
+  margin-bottom:4px;
+}
+.relic-desc{
+  font-size:.7rem;
+  color:#7a98b8;
+  font-style:italic;
+  line-height:1.5;
+}
+.relic-check{
+  width:24px;height:24px;
+  border-radius:50%;
+  border:1px solid rgba(140,170,200,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;
+  color:transparent;
+  transition:all .3s ease;
+  flex-shrink:0;
+}
+.relic-card.picked .relic-check{
+  border-color:rgba(160,200,240,0.6);
+  color:#a8c8e8;
+  background:rgba(120,170,220,0.15);
+}
+
+/* ============ 信物总和页（每页最多四个） ============ */
+.token-choice-grid{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  width:100%;
+  max-width:340px;
+  margin-bottom:20px;
 }
 .token-choice-card{
   display:flex;
@@ -837,19 +872,29 @@ body{
   flex-shrink:0;
 }
 .token-choice-icon.scarf{
-  background:radial-gradient(circle,rgba(120,160,200,0.25),transparent 70%);
-  border:1px solid rgba(140,180,220,0.4);
-  color:#a8c8e8;
+  background:radial-gradient(circle,rgba(100,150,200,0.3),transparent 70%);
+  border:1px solid rgba(120,170,220,0.45);
+  color:#b0d0f0;
 }
 .token-choice-icon.paper{
-  background:radial-gradient(circle,rgba(100,170,170,0.25),transparent 70%);
-  border:1px solid rgba(120,190,190,0.4);
-  color:#a0d0d0;
+  background:radial-gradient(circle,rgba(80,160,170,0.3),transparent 70%);
+  border:1px solid rgba(100,180,190,0.45);
+  color:#b0e0e0;
 }
 .token-choice-icon.earphone{
-  background:radial-gradient(circle,rgba(140,130,190,0.25),transparent 70%);
-  border:1px solid rgba(160,150,210,0.4);
-  color:#c0b8e0;
+  background:radial-gradient(circle,rgba(120,110,180,0.3),transparent 70%);
+  border:1px solid rgba(140,130,200,0.45);
+  color:#d0c8f0;
+}
+.token-choice-icon.relic1{
+  background:radial-gradient(circle,rgba(90,120,150,0.3),transparent 70%);
+  border:1px solid rgba(110,140,170,0.4);
+  color:#a8c0d8;
+}
+.token-choice-icon.relic2{
+  background:radial-gradient(circle,rgba(90,120,150,0.3),transparent 70%);
+  border:1px solid rgba(110,140,170,0.4);
+  color:#a8c0d8;
 }
 .token-choice-info{
   flex:1;
@@ -871,6 +916,34 @@ body{
   opacity:0.25;
   pointer-events:none;
 }
+
+/* 分页按钮 */
+.pagination{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.page-btn{
+  padding:8px 20px;
+  background:transparent;
+  border:1px solid rgba(160,200,240,0.3);
+  border-radius:30px;
+  color:#8aa8c0;
+  font-size:.72rem;
+  letter-spacing:3px;
+  cursor:pointer;
+  transition:all .3s ease;
+  font-family:"Georgia","宋体",serif;
+  touch-action:manipulation;
+}
+.page-btn.active{
+  border-color:rgba(200,225,255,0.7);
+  color:#e0ecf8;
+  background:rgba(120,170,220,0.12);
+  box-shadow:0 0 20px rgba(120,170,230,0.2);
+}
+.page-btn:active{transform:scale(0.95)}
 
 /* ============ 进度 ============ */
 .carriage-dots{
@@ -979,7 +1052,7 @@ body{
   <button class="btn" id="btn-board">撕 下 票 角</button>
 </div>
 
-<!-- ============ 撕角动画层（背景与页面一致） ============ -->
+<!-- ============ 撕角动画层 ============ -->
 <div class="cut-overlay" id="cutOverlay">
   <div class="cut-ticket-wrap">
     <div class="cut-ticket" id="cutTicket">
@@ -1091,10 +1164,11 @@ body{
       <span class="tag general">23le</span>
       <span class="tag general">风向天秤</span>
       <span class="tag general">INTJ</span>
-      <span class="tag">白话</span>
-      <span class="tag">剖析</span>
-      <span class="tag">温柔刀</span>
-      <span class="tag">高恋</span>
+      <span class="tag">DS虐</span>
+      <span class="tag">虐病虐</span>
+      <span class="tag">虐虐互转</span>
+      <span class="tag">高擦虐</span>
+      <span class="tag">人设虐</span>
     </div>
     <div class="ticket-view-quote">
       <span class="quote-mark">"</span>如果我们还有时间，这一趟列车有终点吗<span class="quote-mark">"</span>
@@ -1202,13 +1276,21 @@ body{
       <span class="tag general">23le</span>
       <span class="tag general">风向天秤</span>
       <span class="tag general">INTJ</span>
-      <span class="tag">留白</span>
-      <span class="tag">沉默</span>
-      <span class="tag">旧书签</span>
-      <span class="tag">慢冷</span>
+      <span class="tag">剖析</span>
+      <span class="tag">逻辑</span>
+      <span class="tag">中低恋</span>
+      <span class="tag">白话</span>
+      <span class="tag">共鸣</span>
+      <span class="tag">贬低</span>
+      <span class="tag">涉三</span>
+      <span class="tag">温柔刀</span>
+      <span class="tag">应用心理学</span>
+      <span class="tag">哲学观点</span>
+      <span class="tag">宗教理念</span>
+      <span class="tag">循序渐进</span>
     </div>
     <div class="ticket-view-quote">
-      <span class="quote-mark">"</span>如果我们还有时间，这一趟列车有终点吗<span class="quote-mark">"</span>
+      <span class="quote-mark">"</span>你相信缘分吗我是说你和我<span class="quote-mark">"</span>
     </div>
     <div class="ticket-view-footer">
       <span>NO. SN-0047-C</span>
@@ -1313,13 +1395,23 @@ body{
       <span class="tag general">23le</span>
       <span class="tag general">风向天秤</span>
       <span class="tag general">INTJ</span>
-      <span class="tag">循环</span>
-      <span class="tag">回声</span>
-      <span class="tag">单曲</span>
-      <span class="tag">不眠</span>
+      <span class="tag">拉扯</span>
+      <span class="tag">白话</span>
+      <span class="tag">微剖</span>
+      <span class="tag">温柔刀</span>
+      <span class="tag">含憾而别</span>
+      <span class="tag">恨海情天</span>
+      <span class="tag">白骑士</span>
+      <span class="tag">逻辑</span>
+      <span class="tag">中高恋</span>
+      <span class="tag">树洞型</span>
+      <span class="tag">涉三</span>
+      <span class="tag">微自虐</span>
+      <span class="tag">酸涩感</span>
+      <span class="tag">无力感</span>
     </div>
     <div class="ticket-view-quote">
-      <span class="quote-mark">"</span>如果我们还有时间，这一趟列车有终点吗<span class="quote-mark">"</span>
+      <span class="quote-mark">"</span>如果我们都能陪伴彼此很久的话<span class="quote-mark">"</span>
     </div>
     <div class="ticket-view-footer">
       <span>NO. SN-0047-D</span>
@@ -1384,79 +1476,77 @@ body{
   </div>
 </div>
 
-<!-- ============ 终点站广播 ============ -->
-<div class="screen" id="screen-broadcast">
-  <div class="ending-title">终 点 站 即 将 到 达</div>
-  <div class="ending-subtitle">FINAL DESTINATION</div>
+<!-- ============ 列车临近终点 ============ -->
+<div class="screen" id="screen-farewell">
+  <div class="ending-title">列 车 临 近 终 点</div>
+  <div class="ending-subtitle">BEFORE THE END</div>
 
   <div class="broadcast-box">
     <span class="broadcast-icon">📢 列车广播</span>
     <div class="broadcast-text">
-      "各位旅客，本次列车即将抵达终点站——冰岛。<br>
-      请整理好您的随身物品，<br>
-      带好您所有的回忆。<br>
-      感谢您乘坐本次列车。"
+      "各位旅客，列车即将抵达终点站。<br>
+      请带好您的随身物品，<br>
+      与同行的人好好道别。"
     </div>
   </div>
 
-  <div class="ending-text" id="broadcastText">
-    你握紧了手中的信物。<br>
-    车厢开始减速，窗外的雪原渐渐明亮。<br>
-    终点站，快到了。
-  </div>
-
-  <button class="btn" id="btn-broadcast-next">走 向 车 门</button>
-</div>
-
-<!-- ============ 人潮涌动 ============ -->
-<div class="screen" id="screen-crowd">
-  <div class="ending-title">人 潮 涌 动</div>
-  <div class="ending-subtitle">THE CROWD</div>
-
-  <div class="ending-text" style="margin-bottom:32px">
-    车门打开的瞬间，人群涌入。<br>
-    你被推着向前走，几乎站不稳。<br><br>
-    <span class="wound">你快要和琥珀失联了。</span><br><br>
-    人群模糊了视线，<br>
-    你只听见信物在掌心轻轻震动。
-  </div>
-
-  <div class="btn-group">
-    <button class="btn danger" id="btn-chase">追 上 去</button>
-    <button class="btn amber" id="btn-view-tokens">查 看 信 物</button>
-  </div>
-</div>
-
-<!-- ============ 追上去 → 失散 ============ -->
-<div class="screen" id="screen-lost">
-  <div class="ending-title">你 们 失 散 了</div>
-  <div class="ending-subtitle">ENDING · 失 散</div>
-
   <div class="ending-text">
-    你挤开人群，拼命向前跑。<br>
-    可是人太多了，雪太大了。<br><br>
-    你看见一个穿黑大衣的背影，<br>
-    追上去，却发现是陌生人。<br><br>
-    你回头，身后已经没有琥珀的身影。<br>
-    人群散去，站台空了。<br><br>
-    <span class="wound">你终究还是，和琥珀失散了。</span>
+    感谢这场相遇。<br>
+    雪原上的每一段对话，都值得被记住。<br><br>
+    <span class="wound">但你们，快要走散了。</span>
   </div>
 
-  <button class="btn" id="btn-lost-restart">重 新 登 车</button>
+  <button class="btn" id="btn-farewell-next">看 看 座 位</button>
 </div>
 
-<!-- ============ 查看信物（三件选择） ============ -->
-<div class="screen" id="screen-token-choice">
-  <div class="ending-title">查 看 信 物</div>
-  <div class="ending-subtitle">TOKEN SELECTION · 三 件 信 物</div>
+<!-- ============ 拾起遗留物品 ============ -->
+<div class="screen" id="screen-relic">
+  <div class="ending-title">遗 落 的 物 品</div>
+  <div class="ending-subtitle">LOST & FOUND · 两 件 遗 物</div>
 
   <div class="ending-text" style="font-size:.85rem;margin-bottom:24px">
-    你握紧手中的信物，<br>
-    它们开始微微发光。<br>
-    每一件，都通往不同的方向。
+    她似乎遗落了什么东西。<br>
+    座位上静静躺着两件物品。
   </div>
 
-  <div class="token-choice-grid" id="tokenChoiceGrid">
+  <div class="relic-grid" id="relicGrid">
+    <div class="relic-card" id="relic-1" data-relic="1">
+      <div class="relic-icon">🪞</div>
+      <div class="relic-info">
+        <div class="relic-name">一 面 旧 镜</div>
+        <div class="relic-desc">镜面有裂痕，映出模糊的人影</div>
+      </div>
+      <div class="relic-check">✓</div>
+    </div>
+    <div class="relic-card" id="relic-2" data-relic="2">
+      <div class="relic-icon">🗝️</div>
+      <div class="relic-info">
+        <div class="relic-name">一 把 小 钥 匙</div>
+        <div class="relic-desc">钥匙上刻着一个字母，已经磨损不清</div>
+      </div>
+      <div class="relic-check">✓</div>
+    </div>
+  </div>
+
+  <div class="ending-text" style="font-size:.8rem;color:#7a98b8;margin-bottom:24px" id="relicHint">
+    两件都需要拾起
+  </div>
+
+  <button class="btn amber" id="btn-relic-confirm" disabled>确 认 拾 起</button>
+</div>
+
+<!-- ============ 信物总和页（分页，每页最多四个） ============ -->
+<div class="screen" id="screen-token-choice">
+  <div class="ending-title">你 手 中 的 物 品</div>
+  <div class="ending-subtitle">YOUR ITEMS · 你 持 有 的 物 品</div>
+
+  <div class="ending-text" style="font-size:.85rem;margin-bottom:20px">
+    你握着手中的物品，<br>
+    它们开始微微发光。
+  </div>
+
+  <!-- 第一页 -->
+  <div class="token-choice-grid" id="tokenPage1">
     <div class="token-choice-card" id="choice-p1" data-token="p1">
       <div class="token-choice-icon scarf">🧣</div>
       <div class="token-choice-info">
@@ -1478,9 +1568,35 @@ body{
         <div class="token-choice-desc">通往一首没有唱完的歌</div>
       </div>
     </div>
+    <div class="token-choice-card" id="choice-relic1" data-token="relic1">
+      <div class="token-choice-icon relic1">🪞</div>
+      <div class="token-choice-info">
+        <div class="token-choice-name">一 面 旧 镜</div>
+        <div class="token-choice-desc">映出另一个自己</div>
+      </div>
+    </div>
   </div>
 
-  <button class="btn" id="btn-token-back">回 到 人 群</button>
+  <!-- 第二页 -->
+  <div class="token-choice-grid" id="tokenPage2" style="display:none">
+    <div class="token-choice-card" id="choice-relic2" data-token="relic2">
+      <div class="token-choice-icon relic2">🗝️</div>
+      <div class="token-choice-info">
+        <div class="token-choice-name">一 把 小 钥 匙</div>
+        <div class="token-choice-desc">打开一扇不知道通往哪里的门</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分页按钮 -->
+  <div class="pagination" id="pagination">
+    <button class="page-btn active" id="page-btn-1" data-page="1">第 一 页</button>
+    <button class="page-btn" id="page-btn-2" data-page="2">第 二 页</button>
+  </div>
+
+  <div class="ending-text" style="font-size:.75rem;color:#7a98b8">
+    你只持有拾起的物品
+  </div>
 </div>
 
 <!-- ============ 信物链接页面（围巾） ============ -->
@@ -1603,9 +1719,11 @@ const state = {
   storiesHeard: new Set(),
   currentScreen: 'screen-start',
   tokens: { p1: false, p2: false, p3: false },
+  relics: { r1: false, r2: false },
   p1Answers: [],
   p2Answers: [],
-  p3Answers: []
+  p3Answers: [],
+  tokenPage: 1
 };
 
 // ==================== DOM ====================
@@ -1633,6 +1751,7 @@ function showScreen(id) {
   const stationScreens = ['screen-start', 'screen-ticket', 'screen-refuse'];
   const carriageScreens = ['screen-carriage', 'screen-choose'];
   const tokenScreens = ['screen-p1-token', 'screen-p2-token', 'screen-p3-token'];
+  const farewellScreens = ['screen-farewell', 'screen-relic', 'screen-token-choice'];
   const linkScreens = ['screen-link-scarf', 'screen-link-paper', 'screen-link-earphone'];
 
   if (stationScreens.includes(id)) {
@@ -1681,23 +1800,8 @@ function showScreen(id) {
     }
     const idx = id.includes('p1') ? 1 : id.includes('p2') ? 2 : 3;
     updateDots(idx);
-  } else if (id === 'screen-crowd') {
-    bg.className = 'bg crowd';
-    carriageInterior.classList.add('show');
-    readingLamp.classList.add('show');
-    carriageScene.classList.add('show');
-    crowdScene.classList.add('show');
-    carriageDots.style.display = 'none';
-    createCrowd();
-  } else if (id === 'screen-broadcast') {
-    bg.className = 'bg carriage';
-    carriageInterior.classList.add('show');
-    readingLamp.classList.add('show');
-    carriageScene.classList.add('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'none';
-  } else if (id === 'screen-lost' || id === 'screen-token-choice') {
-    bg.className = 'bg crowd';
+  } else if (farewellScreens.includes(id)) {
+    bg.className = 'bg farewell';
     carriageInterior.classList.remove('show');
     readingLamp.classList.remove('show');
     carriageScene.classList.remove('show');
@@ -1747,12 +1851,10 @@ document.getElementById('btn-board').addEventListener('click', () => {
   cutText.classList.add('show');
   cutText.textContent = '正 在 撕 下 票 角';
 
-  // 票根从下方浮动上来
   setTimeout(() => {
     cutTicket.classList.add('float-up');
   }, 200);
 
-  // 浮动完成后，显示撕角碎片并执行撕开动画
   setTimeout(() => {
     tornCorner.classList.add('active');
     setTimeout(() => {
@@ -1760,20 +1862,17 @@ document.getElementById('btn-board').addEventListener('click', () => {
     }, 200);
   }, 1200);
 
-  // 撕角后票根出现缺口
   setTimeout(() => {
     cutTicket.classList.add('torn');
     tornEdge.classList.add('show');
     cutText.textContent = '票 角 已 撕 下';
   }, 1600);
 
-  // 显示欢迎登车
   setTimeout(() => {
     overlay.classList.remove('active');
     document.getElementById('welcomeText').classList.add('show');
   }, 3000);
 
-  // 进入车厢
   setTimeout(() => {
     document.getElementById('welcomeText').classList.remove('show');
     state.boarded = true;
@@ -1859,48 +1958,33 @@ function showP3Token() {
   showScreen('screen-p3-token');
 }
 
-// ==================== 收下/拒绝信物 ====================
+// ==================== 收下/拒绝信物（任意支线完成即进入终点站） ====================
 document.getElementById('btn-p1-accept').addEventListener('click', () => {
   state.tokens.p1 = true;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
 document.getElementById('btn-p1-refuse').addEventListener('click', () => {
   state.tokens.p1 = false;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
 
 document.getElementById('btn-p2-accept').addEventListener('click', () => {
   state.tokens.p2 = true;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
 document.getElementById('btn-p2-refuse').addEventListener('click', () => {
   state.tokens.p2 = false;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
 
 document.getElementById('btn-p3-accept').addEventListener('click', () => {
   state.tokens.p3 = true;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
 document.getElementById('btn-p3-refuse').addEventListener('click', () => {
   state.tokens.p3 = false;
-  showScreen('screen-choose');
-  checkAllTokens();
+  setTimeout(() => showScreen('screen-farewell'), 600);
 });
-
-// ==================== 检查是否所有角色都访问过 ====================
-function checkAllTokens() {
-  if (state.storiesHeard.size >= 3) {
-    setTimeout(() => {
-      showScreen('screen-broadcast');
-    }, 800);
-  }
-}
 
 // ==================== 票根查看与跳过 ====================
 document.getElementById('btn-p1-view').addEventListener('click', () => showScreen('screen-p1-ticket'));
@@ -1918,48 +2002,81 @@ document.getElementById('btn-p3-skip').addEventListener('click', () => showScree
 document.getElementById('btn-p3-to-q').addEventListener('click', () => showScreen('screen-p3-q1'));
 document.getElementById('peek-p3').addEventListener('click', () => showScreen('screen-p3-ticket'));
 
-// ==================== 广播后走向车门 ====================
-document.getElementById('btn-broadcast-next').addEventListener('click', () => {
-  showScreen('screen-crowd');
+// ==================== 列车临近终点 ====================
+document.getElementById('btn-farewell-next').addEventListener('click', () => {
+  showScreen('screen-relic');
 });
 
-// ==================== 人潮涌动 ====================
-function createCrowd() {
-  crowdScene.innerHTML = '';
-  for (let i = 0; i < 24; i++) {
-    const figure = document.createElement('div');
-    figure.className = 'crowd-figure';
-    figure.style.left = Math.random() * 100 + '%';
-    figure.style.bottom = '-80px';
-    figure.style.animationDuration = (Math.random() * 4 + 3) + 's';
-    figure.style.animationDelay = (Math.random() * 5) + 's';
-    figure.style.width = (Math.random() * 20 + 30) + 'px';
-    figure.style.height = (Math.random() * 30 + 50) + 'px';
-    crowdScene.appendChild(figure);
+// ==================== 拾起遗留物品（必须两件都选） ====================
+document.getElementById('relic-1').addEventListener('click', function() {
+  this.classList.toggle('picked');
+  state.relics.r1 = this.classList.contains('picked');
+  updateRelicConfirm();
+});
+
+document.getElementById('relic-2').addEventListener('click', function() {
+  this.classList.toggle('picked');
+  state.relics.r2 = this.classList.contains('picked');
+  updateRelicConfirm();
+});
+
+function updateRelicConfirm() {
+  const btn = document.getElementById('btn-relic-confirm');
+  const hint = document.getElementById('relicHint');
+  const bothPicked = state.relics.r1 && state.relics.r2;
+  btn.disabled = !bothPicked;
+  if (bothPicked) {
+    hint.textContent = '两件都已拾起';
+  } else {
+    hint.textContent = '两件都需要拾起';
   }
 }
 
-// ==================== 追上去 → 失散 ====================
-document.getElementById('btn-chase').addEventListener('click', () => {
-  showScreen('screen-lost');
-});
-
-// ==================== 查看信物（三件选择） ====================
-document.getElementById('btn-view-tokens').addEventListener('click', () => {
+document.getElementById('btn-relic-confirm').addEventListener('click', () => {
   showScreen('screen-token-choice');
   updateTokenChoice();
+  switchTokenPage(1);
 });
 
+// ==================== 信物总和页分页 ====================
+function switchTokenPage(page) {
+  state.tokenPage = page;
+  const page1 = document.getElementById('tokenPage1');
+  const page2 = document.getElementById('tokenPage2');
+  const btn1 = document.getElementById('page-btn-1');
+  const btn2 = document.getElementById('page-btn-2');
+
+  if (page === 1) {
+    page1.style.display = 'flex';
+    page2.style.display = 'none';
+    btn1.classList.add('active');
+    btn2.classList.remove('active');
+  } else {
+    page1.style.display = 'none';
+    page2.style.display = 'flex';
+    btn1.classList.remove('active');
+    btn2.classList.add('active');
+  }
+}
+
+document.getElementById('page-btn-1').addEventListener('click', () => switchTokenPage(1));
+document.getElementById('page-btn-2').addEventListener('click', () => switchTokenPage(2));
+
+// ==================== 信物选择 ====================
 function updateTokenChoice() {
   const choiceP1 = document.getElementById('choice-p1');
   const choiceP2 = document.getElementById('choice-p2');
   const choiceP3 = document.getElementById('choice-p3');
+  const choiceR1 = document.getElementById('choice-relic1');
+  const choiceR2 = document.getElementById('choice-relic2');
+
   choiceP1.classList.toggle('disabled', !state.tokens.p1);
   choiceP2.classList.toggle('disabled', !state.tokens.p2);
   choiceP3.classList.toggle('disabled', !state.tokens.p3);
+  choiceR1.classList.toggle('disabled', !state.relics.r1);
+  choiceR2.classList.toggle('disabled', !state.relics.r2);
 }
 
-// 信物选择点击
 document.getElementById('choice-p1').addEventListener('click', () => {
   if (state.tokens.p1) showScreen('screen-link-scarf');
 });
@@ -1969,14 +2086,17 @@ document.getElementById('choice-p2').addEventListener('click', () => {
 document.getElementById('choice-p3').addEventListener('click', () => {
   if (state.tokens.p3) showScreen('screen-link-earphone');
 });
+document.getElementById('choice-relic1').addEventListener('click', () => {
+  if (state.relics.r1) alert('【一面旧镜 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
+});
+document.getElementById('choice-relic2').addEventListener('click', () => {
+  if (state.relics.r2) alert('【一把小钥匙 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
+});
 
 // ==================== 信物链接返回 ====================
 document.getElementById('btn-link-scarf-back').addEventListener('click', () => showScreen('screen-token-choice'));
 document.getElementById('btn-link-paper-back').addEventListener('click', () => showScreen('screen-token-choice'));
 document.getElementById('btn-link-earphone-back').addEventListener('click', () => showScreen('screen-token-choice'));
-
-// 回到人群
-document.getElementById('btn-token-back').addEventListener('click', () => showScreen('screen-crowd'));
 
 // ==================== 信物链接进入（弹窗提示，待开发） ====================
 document.getElementById('btn-link-scarf-go').addEventListener('click', () => {
@@ -1994,19 +2114,23 @@ function resetGame() {
   state.storiesHeard.clear();
   state.boarded = false;
   state.tokens = { p1: false, p2: false, p3: false };
+  state.relics = { r1: false, r2: false };
   state.p1Answers = [];
   state.p2Answers = [];
   state.p3Answers = [];
   state.playerName = '';
+  state.tokenPage = 1;
   nameInput.value = '';
   btnPrint.disabled = true;
   document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  crowdScene.classList.remove('show');
+  document.getElementById('relic-1').classList.remove('picked');
+  document.getElementById('relic-2').classList.remove('picked');
+  updateRelicConfirm();
+  switchTokenPage(1);
   showScreen('screen-start');
 }
 
 document.getElementById('btn-restart1').addEventListener('click', resetGame);
-document.getElementById('btn-lost-restart').addEventListener('click', resetGame);
 
 // ==================== 按钮事件 ====================
 document.getElementById('btn-explore').addEventListener('click', () => showScreen('screen-choose'));
