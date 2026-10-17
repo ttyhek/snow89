@@ -2279,37 +2279,43 @@ const bgmAudio = document.getElementById('bgmAudio');
 const bgmToggle = document.getElementById('bgmToggle');
 
 function bgmInit() {
-  if (BGM.started) return;
-  BGM.started = true;
-  bgmAudio.volume = 0.55;
-  const p = bgmAudio.play();
-  if (p && p.catch) {
-    p.then(() => { bgmToggle.classList.remove('off'); bgmToggle.classList.add('spin'); })
-     .catch(() => { BGM.started = false; });
-  } else {
-    bgmToggle.classList.remove('off');
-    bgmToggle.classList.add('spin');
-  }
+  try {
+    if (!bgmAudio) return;
+    if (BGM.started) return;
+    BGM.started = true;
+    bgmAudio.volume = 0.55;
+    const p = bgmAudio.play();
+    if (p && p.catch) {
+      p.then(() => { if(bgmToggle){bgmToggle.classList.remove('off');bgmToggle.classList.add('spin');} })
+       .catch(() => { BGM.started = false; });
+    } else {
+      if(bgmToggle){bgmToggle.classList.remove('off');bgmToggle.classList.add('spin');}
+    }
+  } catch(e) { BGM.started = false; }
 }
 
 // 播放/暂停状态同步到开关按钮
-bgmAudio.addEventListener('playing', () => { bgmToggle.classList.remove('off'); bgmToggle.classList.add('spin'); });
-bgmAudio.addEventListener('pause', () => { bgmToggle.classList.add('off'); bgmToggle.classList.remove('spin'); });
-bgmAudio.addEventListener('error', () => { bgmToggle.classList.add('off'); bgmToggle.classList.remove('spin'); });
+if (bgmAudio) {
+  bgmAudio.addEventListener('playing', () => { if(bgmToggle){bgmToggle.classList.remove('off');bgmToggle.classList.add('spin');} });
+  bgmAudio.addEventListener('pause', () => { if(bgmToggle){bgmToggle.classList.add('off');bgmToggle.classList.remove('spin');} });
+  bgmAudio.addEventListener('error', () => { if(bgmToggle){bgmToggle.classList.add('off');bgmToggle.classList.remove('spin');} });
+}
 
 // 首次任意交互即启动音乐
 document.addEventListener('pointerdown', bgmInit);
 
-bgmToggle.addEventListener('click', function(e) {
-  e.stopPropagation();
-  if (!BGM.started) { bgmInit(); return; }
-  if (bgmAudio.paused) {
-    const p = bgmAudio.play();
-    if (p && p.catch) p.catch(() => {});
-  } else {
-    bgmAudio.pause();
-  }
-});
+if (bgmToggle) {
+  bgmToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (!BGM.started) { bgmInit(); return; }
+    if (bgmAudio && !bgmAudio.paused) {
+      bgmAudio.pause();
+    } else if (bgmAudio) {
+      const p = bgmAudio.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+  });
+}
 
 // ==================== 撕纸音效 ====================
 function playTearSound() {
@@ -3123,8 +3129,11 @@ document.getElementById('btn-p3').addEventListener('click', () => showScreen('sc
 
 // ==================== 雪花画布 ====================
 (function initSnow() {
-  const canvas = document.getElementById('snow-canvas');
-  const ctx = canvas.getContext('2d');
+  try {
+    const canvas = document.getElementById('snow-canvas');
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
   let w, h;
   let flakes = [];
 
@@ -3195,10 +3204,26 @@ document.getElementById('btn-p3').addEventListener('click', () => showScreen('sc
   window.addEventListener('resize', resize);
   resize();
   render();
+  } catch (e) { /* 雪花画布初始化失败，不影响主流程 */ }
 })();
 
 // ==================== 初始化 ====================
-showScreen('screen-start');
+/* 三重保险确保首页始终可进入 */
+function ensureStartScreen() {
+  try { showScreen('screen-start'); } catch(e) {
+    /* 降级：直接操作 DOM */
+    var s = document.getElementById('screen-start');
+    if (s) s.classList.add('active');
+  }
+}
+/* 立即执行 */
+ensureStartScreen();
+/* DOMContentLoaded 兜底（防脚本被中断） */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ensureStartScreen);
+}
+/* 超时兜底（防阻塞） */
+setTimeout(ensureStartScreen, 3000);
 </script>
 </body>
 </html>
