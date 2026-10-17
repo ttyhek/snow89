@@ -2856,29 +2856,37 @@ function openDetail(id) {
     docBox.innerHTML =
       '<div class="detail-pager"><div class="detail-track" id="dTrack">' +
       '<div class="detail-page">' + item.docText + '</div>' +
-      '<div class="detail-page">' + item.docImages + '</div>' +
+      '<div class="detail-page">' + item.docImages +
+      (item.go ? '<button class="btn amber" id="btn-doc-go" style="margin-top:16px;width:100%">了 解 更 多</button>' : '') +
+      '</div>' +
       '</div></div>' +
-      '<div class="pager-nav">' +
-      '<button class="btn amber" id="btn-doc-flip">下 一 页 ›</button>' +
-      '<button class="btn amber" id="btn-doc-go" style="display:none">了 解 更 多</button>' +
-      '</div>';
+      '<div class="rules-hint" style="margin-bottom:26px">← 左右滑动翻阅 · 页内上下滑动阅读 →</div>';
     let dp = 0;
     const track = docBox.querySelector('#dTrack');
-    const flip = docBox.querySelector('#btn-doc-flip');
     const go2 = docBox.querySelector('#btn-doc-go');
-    /* 两页卡面等大：以文字页高度为准，图片页内滑阅读 */
+    /* 两页卡面等大：以文字页高度为准，两页均可内滑阅读 */
     requestAnimationFrame(() => {
       const pages = track.querySelectorAll('.detail-page');
       const h = pages[0].scrollHeight;
-      pages.forEach(pg => { pg.style.height = h + 'px'; });
+      pages.forEach(pg => { pg.style.height = h + 'px'; pg.style.overflowY = 'auto'; });
     });
-    flip.addEventListener('click', () => {
-      dp = 1 - dp;
+    function docGo(i) {
+      dp = Math.max(0, Math.min(1, i));
       track.style.transform = 'translateX(-' + (dp * 100) + '%)';
-      flip.textContent = dp === 0 ? '下 一 页 ›' : '‹ 返 回 文 字';
-      go2.style.display = dp === 1 ? '' : 'none';
-    });
-    go2.addEventListener('click', () => { if (item.go) window.open(item.go, '_blank'); });
+    }
+    /* 触摸左右滑动翻页（不影响页内上下滑动） */
+    let dsx = 0, dsy = 0;
+    track.addEventListener('touchstart', e => {
+      dsx = e.touches[0].clientX; dsy = e.touches[0].clientY;
+    }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - dsx;
+      const dy = e.changedTouches[0].clientY - dsy;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        docGo(dp + (dx < 0 ? 1 : -1));
+      }
+    }, { passive: true });
+    if (go2) go2.addEventListener('click', () => { if (item.go) window.open(item.go, '_blank'); });
   } else {
     docBox.style.display = 'none';
     docBox.innerHTML = '';
@@ -2912,14 +2920,21 @@ function setupRulesPager(hasDoc) {
     /* 三页版：恢复默认限高内滑 */
     document.querySelectorAll('#rulesTrack .rules-page').forEach(p => { p.style.height = ''; p.style.overflowY = ''; });
   } else {
-    /* 两页版：第一页完整展示不内滑；第二页内滑，卡面与第一页一致 */
+    /* 两页版：两页卡面等大且均可内滑，文字完整可读 */
     requestAnimationFrame(() => {
       const pages = document.querySelectorAll('#rulesTrack2 .rules-page');
       pages.forEach(p => { p.style.height = ''; p.style.overflowY = ''; });
-      const h = pages[0].scrollHeight;
-      pages[0].style.overflowY = 'hidden';
-      pages[1].style.height = h + 'px';
-      pages[1].style.overflowY = 'auto';
+      if (currentDetail === 'p3') {
+        /* 耳机：两页都等高内滑 */
+        const h = Math.max(pages[0].scrollHeight, pages[1].scrollHeight);
+        pages.forEach(p => { p.style.height = h + 'px'; p.style.overflowY = 'auto'; });
+      } else {
+        /* 围巾/纸片：第一页平铺，第二页内滑 */
+        const h = pages[0].scrollHeight;
+        pages[0].style.overflowY = 'hidden';
+        pages[1].style.height = h + 'px';
+        pages[1].style.overflowY = 'auto';
+      }
     });
   }
 }
@@ -2934,7 +2949,7 @@ function gotoRulesPage(i) {
   const count = document.getElementById('rulesCount');
   if (count) count.textContent = (rulesPage + 1) + ' / ' + rulesTotal;
   const nb = document.getElementById('rulesNextBtn');
-  if (nb) nb.classList.toggle('dim', rulesPage === rulesTotal - 1);
+  if (nb) nb.style.display = (rulesPage === rulesTotal - 1) ? 'none' : '';
 }
 document.getElementById('rulesPrev').addEventListener('click', () => gotoRulesPage(rulesPage - 1));
 document.getElementById('rulesNext').addEventListener('click', () => gotoRulesPage(rulesPage + 1));
