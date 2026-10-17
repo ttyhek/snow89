@@ -1,2238 +1,1223 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>冰岛列车 · 琥珀</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{
-  background:#0a1220;
-  font-family:"Georgia","宋体",serif;
-  color:#d0dce8;
-  touch-action:none;
-  position:relative;
-  user-select:none;
-  -webkit-user-select:none;
-}
+  <script>window.process=window.process||{env:{}};</script>
 
-/* ============ 背景 ============ */
-.bg{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#0a1220,#101c2e 50%,#142438 100%);transition:background 2s ease}
-.bg.station{background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%)}
-.bg.carriage{background:linear-gradient(180deg,#0a1220,#0e1a2a 50%,#122236 100%)}
-.bg.amber{background:linear-gradient(180deg,#14100a,#241a0e 50%,#34240e 100%)}
-.bg.crowd{background:linear-gradient(180deg,#1a2430,#243244 50%,#2e4054 100%)}
-.bg.farewell{background:linear-gradient(180deg,#0c1420,#141e2e 50%,#1c2838 100%)}
-
-#snow-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
-
-.platform-light{
-  position:fixed;top:18%;width:2px;height:18px;
-  background:rgba(230,210,160,0.7);border-radius:50%;
-  box-shadow:0 0 18px rgba(230,210,160,0.6),0 0 45px rgba(230,210,160,0.25);
-  z-index:2;transition:opacity 2s ease;
-}
-.platform-light::after{content:"";position:absolute;top:-5px;left:-4px;width:10px;height:5px;background:rgba(230,210,160,0.8);border-radius:50%;filter:blur(2px)}
-.platform-light.l1{left:12%}
-.platform-light.l2{left:45%}
-.platform-light.l3{left:78%}
-
-.carriage-interior{
-  position:fixed;inset:0;z-index:1;pointer-events:none;
-  opacity:0;transition:opacity 2s ease;
-}
-.carriage-interior.show{opacity:1}
-.carriage-interior::before{
-  content:"";position:absolute;inset:0;
-  background:
-    linear-gradient(180deg,rgba(0,0,0,0.6) 0%,transparent 18%),
-    linear-gradient(0deg,rgba(0,0,0,0.75) 0%,transparent 22%),
-    radial-gradient(ellipse at 50% 40%,rgba(40,65,95,0.3),transparent 70%);
-}
-.reading-lamp{
-  position:fixed;top:6%;left:50%;transform:translateX(-50%);
-  width:140px;height:70px;z-index:4;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 20%,rgba(220,180,100,0.18),transparent 70%);
-  filter:blur(18px);opacity:0;transition:opacity 2s ease;
-  animation:lampFlicker 4s ease-in-out infinite;
-}
-.reading-lamp.show{opacity:1}
-@keyframes lampFlicker{0%,100%{opacity:.5}48%{opacity:.5}50%{opacity:.85}52%{opacity:.5}80%{opacity:.65}}
-
-/* ============ 页面 ============ */
-.screen{
-  position:fixed;inset:0;z-index:10;
-  display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:28px;
-  text-align:center;
-  overflow-y:auto;
-}
-.screen.active{display:flex;animation:screenFadeIn 1.2s ease forwards}
-@keyframes screenFadeIn{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
-
-.title{
-  font-size:2.2rem;letter-spacing:12px;
-  color:#e0ecf8;
-  text-shadow:0 0 40px rgba(160,200,240,0.4),0 0 80px rgba(120,170,220,0.2);
-  margin-bottom:10px;font-style:italic;
-}
-.subtitle{
-  font-size:.72rem;letter-spacing:6px;
-  color:#6a8aaa;font-family:"Arial",sans-serif;
-  margin-bottom:48px;text-transform:uppercase;
-}
-
-/* ============ 票根 ============ */
-.ticket-wrap{position:relative;margin-bottom:36px}
-
-.ticket{
-  position:relative;
-  width:290px;
-  background:linear-gradient(135deg,rgba(26,42,62,0.95),rgba(16,28,44,0.98));
-  border:1px solid rgba(160,200,240,0.3);
-  border-radius:12px;
-  padding:26px 22px;
-  box-shadow:0 20px 50px rgba(0,0,0,0.7),inset 0 1px 0 rgba(200,225,255,0.12);
-  transition:all .8s cubic-bezier(.4,.8,.3,1);
-}
-.ticket::before,.ticket::after{
-  content:"";position:absolute;width:16px;height:16px;
-  background:#0a1220;border-radius:50%;
-  border:1px solid rgba(160,200,240,0.2);
-}
-.ticket::before{left:-8px;top:50%;transform:translateY(-50%)}
-.ticket::after{right:-8px;top:60%;transform:translateY(-50%)}
-
-.ticket-header{
-  font-size:.6rem;letter-spacing:5px;
-  color:#7a9aba;font-family:"Arial",sans-serif;
-  margin-bottom:14px;text-align:left;
-}
-.ticket-route{
-  font-size:.95rem;letter-spacing:2px;
-  color:#c0d4e8;margin-bottom:6px;text-align:left;
-}
-.ticket-route .arrow{color:#6a8aaa;margin:0 8px}
-.ticket-name{
-  font-size:.68rem;letter-spacing:3px;
-  color:#8aa8c0;margin-top:10px;text-align:left;
-  font-family:"Courier New",monospace;
-}
-.ticket-name .name-value{
-  color:#e0c080;
-  text-shadow:0 0 12px rgba(220,180,100,0.5);
-  font-size:.85rem;letter-spacing:2px;
-}
-.ticket-seat{
-  font-size:.68rem;letter-spacing:3px;
-  color:#8aa8c0;margin-top:6px;text-align:left;
-  font-family:"Courier New",monospace;
-}
-.ticket-seat .seat-num{
-  color:#e0c080;
-  text-shadow:0 0 12px rgba(220,180,100,0.5);
-  font-size:.85rem;
-}
-.ticket-info{
-  display:flex;justify-content:space-between;
-  margin-top:16px;padding-top:14px;
-  border-top:1px dashed rgba(160,200,240,0.2);
-  font-size:.62rem;letter-spacing:2px;
-  color:#6a8aaa;font-family:"Courier New",monospace;
-}
-.ticket-info .value{color:#a0bcd4}
-.ticket-serial{
-  position:absolute;bottom:8px;right:16px;
-  font-size:.55rem;letter-spacing:1px;
-  color:rgba(120,160,200,0.4);
-  font-family:"Courier New",monospace;
-}
-
-/* ============ 输入框 ============ */
-.name-input-wrap{width:290px;margin-bottom:28px}
-.name-input{
-  width:100%;
-  padding:16px 20px;
-  background:rgba(16,28,44,0.8);
-  border:1px solid rgba(160,200,240,0.3);
-  border-radius:12px;
-  color:#e0ecf8;
-  font-size:1rem;
-  letter-spacing:3px;
-  font-family:"Georgia","宋体",serif;
-  text-align:center;
-  outline:none;
-  transition:all .3s ease;
-}
-.name-input::placeholder{
-  color:rgba(140,170,200,0.4);
-  letter-spacing:2px;font-size:.85rem;
-}
-.name-input:focus{
-  border-color:rgba(200,220,255,0.6);
-  box-shadow:0 0 30px rgba(120,170,230,0.25);
-  background:rgba(20,34,52,0.9);
-}
-
-/* ============ 按钮 ============ */
-.btn{
-  display:inline-block;
-  padding:14px 44px;
-  background:transparent;
-  border:1px solid rgba(160,200,240,0.45);
-  border-radius:60px;
-  color:#c8dcf0;
-  font-size:.92rem;
-  letter-spacing:5px;
-  cursor:pointer;
-  transition:all .4s ease;
-  font-family:"Georgia","宋体",serif;
-  text-shadow:0 0 10px rgba(160,200,240,0.25);
-  position:relative;
-  overflow:hidden;
-  touch-action:manipulation;
-  user-select:none;
-  margin:6px 0;
-}
-.btn::before{
-  content:"";position:absolute;top:0;left:-100%;
-  width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(160,210,255,0.18),transparent);
-  transition:left .6s ease;
-}
-.btn:active{transform:scale(0.97)}
-.btn:hover::before,.btn:active::before{left:100%}
-.btn:hover,.btn:active{
-  border-color:rgba(200,225,255,0.8);
-  color:#e8f2ff;
-  box-shadow:0 0 35px rgba(100,160,220,0.3),inset 0 0 20px rgba(120,180,240,0.1);
-}
-.btn:disabled{opacity:.3;pointer-events:none}
-.btn.danger{
-  border-color:rgba(180,80,80,0.5);
-  color:#d09898;
-}
-.btn.danger:hover,.btn.danger:active{
-  border-color:rgba(200,100,100,0.8);
-  color:#f0b0b0;
-  box-shadow:0 0 35px rgba(180,60,60,0.25);
-}
-.btn.amber{
-  border-color:rgba(200,160,80,0.5);
-  color:#d8b870;
-}
-.btn.amber:hover,.btn.amber:active{
-  border-color:rgba(220,180,100,0.8);
-  color:#f0d090;
-  box-shadow:0 0 35px rgba(200,160,80,0.3);
-}
-
-.btn-group{display:flex;flex-direction:column;gap:14px;align-items:center}
-
-/* ============ 撕角动画层 ============ */
-.cut-overlay{
-  position:fixed;inset:0;z-index:50;
-  display:none;
-  align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%);
-}
-.cut-overlay.active{display:flex}
-
-.cut-ticket-wrap{
-  position:relative;
-  width:290px;
-}
-
-.cut-ticket{
-  position:relative;
-  width:290px;
-  background:linear-gradient(135deg,rgba(26,42,62,0.95),rgba(16,28,44,0.98));
-  border:1px solid rgba(160,200,240,0.3);
-  border-radius:12px;
-  padding:26px 22px;
-  box-shadow:0 20px 50px rgba(0,0,0,0.7),inset 0 1px 0 rgba(200,225,255,0.12);
-  clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  transition:clip-path .6s cubic-bezier(.4,.8,.3,1);
-  transform:translateY(80px);
-  opacity:0;
-}
-.cut-ticket.float-up{
-  animation:ticketFloatUp 1s cubic-bezier(.2,.8,.3,1) forwards;
-}
-@keyframes ticketFloatUp{
-  0%{transform:translateY(80px);opacity:0}
-  100%{transform:translateY(0);opacity:1}
-}
-
-.cut-ticket::before,.cut-ticket::after{
-  content:"";position:absolute;width:16px;height:16px;
-  background:#0d1626;border-radius:50%;
-  border:1px solid rgba(160,200,240,0.2);
-}
-.cut-ticket::before{left:-8px;top:50%;transform:translateY(-50%)}
-.cut-ticket::after{right:-8px;top:60%;transform:translateY(-50%)}
-
-.cut-ticket.torn{
-  clip-path:polygon(0 0, 82% 0, 100% 18%, 100% 100%, 0 100%);
-}
-
-.torn-corner{
-  position:absolute;
-  top:0;right:0;
-  width:0;height:0;
-  z-index:10;
-  pointer-events:none;
-  clip-path:polygon(0 0, 100% 0, 100% 100%);
-  background:linear-gradient(225deg,rgba(26,42,62,0.95),rgba(16,28,44,0.98));
-  border-left:1px solid rgba(160,200,240,0.3);
-  border-bottom:1px solid rgba(160,200,240,0.3);
-  transition:width .3s ease,height .3s ease;
-}
-.torn-corner.active{
-  width:52px;
-  height:52px;
-}
-.torn-corner.fly{
-  animation:cornerFly 1.2s cubic-bezier(.3,.7,.4,1) forwards;
-}
-@keyframes cornerFly{
-  0%{transform:translate(0,0) rotate(0deg);opacity:1}
-  100%{transform:translate(60px,-60px) rotate(45deg);opacity:0}
-}
-
-.torn-edge{
-  position:absolute;
-  top:0;right:0;
-  width:52px;height:52px;
-  z-index:5;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .4s ease;
-  background:
-    linear-gradient(135deg, transparent 46%, rgba(200,225,255,0.15) 48%, transparent 50%),
-    linear-gradient(160deg, transparent 60%, rgba(160,200,240,0.1) 62%, transparent 64%),
-    linear-gradient(200deg, transparent 70%, rgba(160,200,240,0.08) 72%, transparent 74%);
-}
-.torn-edge.show{opacity:1}
-
-.cut-text{
-  position:fixed;
-  bottom:20%;left:50%;transform:translateX(-50%);
-  font-size:.8rem;letter-spacing:5px;
-  color:rgba(200,225,255,0.6);
-  font-style:italic;
-  z-index:56;
-  opacity:0;
-  transition:opacity .5s ease;
-  white-space:nowrap;
-}
-.cut-text.show{opacity:1}
-
-.cut-ticket .ticket-header{
-  font-size:.6rem;letter-spacing:5px;
-  color:#7a9aba;font-family:"Arial",sans-serif;
-  margin-bottom:14px;text-align:left;
-}
-.cut-ticket .ticket-route{
-  font-size:.95rem;letter-spacing:2px;
-  color:#c0d4e8;margin-bottom:6px;text-align:left;
-}
-.cut-ticket .ticket-route .arrow{color:#6a8aaa;margin:0 8px}
-.cut-ticket .ticket-name{
-  font-size:.68rem;letter-spacing:3px;
-  color:#8aa8c0;margin-top:10px;text-align:left;
-  font-family:"Courier New",monospace;
-}
-.cut-ticket .ticket-name .name-value{
-  color:#e0c080;
-  text-shadow:0 0 12px rgba(220,180,100,0.5);
-  font-size:.85rem;letter-spacing:2px;
-}
-.cut-ticket .ticket-seat{
-  font-size:.68rem;letter-spacing:3px;
-  color:#8aa8c0;margin-top:6px;text-align:left;
-  font-family:"Courier New",monospace;
-}
-.cut-ticket .ticket-seat .seat-num{
-  color:#e0c080;
-  text-shadow:0 0 12px rgba(220,180,100,0.5);
-  font-size:.85rem;
-}
-.cut-ticket .ticket-info{
-  display:flex;justify-content:space-between;
-  margin-top:16px;padding-top:14px;
-  border-top:1px dashed rgba(160,200,240,0.2);
-  font-size:.62rem;letter-spacing:2px;
-  color:#6a8aaa;font-family:"Courier New",monospace;
-}
-.cut-ticket .ticket-info .value{color:#a0bcd4}
-.cut-ticket .ticket-serial{
-  position:absolute;bottom:8px;right:16px;
-  font-size:.55rem;letter-spacing:1px;
-  color:rgba(120,160,200,0.4);
-  font-family:"Courier New",monospace;
-}
-
-.welcome-text{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;justify-content:center;
-  flex-direction:column;
-  z-index:60;
-  background:linear-gradient(180deg,#0d1626,#162a42 45%,#1e3852 100%);
-  pointer-events:none;
-}
-.welcome-text.show{display:flex;animation:welcomeFade 1.5s ease forwards}
-@keyframes welcomeFade{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
-.welcome-title{
-  font-size:1.8rem;letter-spacing:16px;
-  color:#e0ecf8;
-  text-shadow:0 0 50px rgba(160,200,240,0.5),0 0 100px rgba(120,170,220,0.3);
-  font-style:italic;
-  margin-bottom:16px;
-  animation:welcomeGlow 2s ease-in-out infinite;
-}
-@keyframes welcomeGlow{
-  0%,100%{text-shadow:0 0 50px rgba(160,200,240,0.5),0 0 100px rgba(120,170,220,0.3)}
-  50%{text-shadow:0 0 70px rgba(180,220,255,0.8),0 0 140px rgba(140,190,240,0.5)}
-}
-.welcome-sub{
-  font-size:.7rem;letter-spacing:6px;
-  color:#6a8aaa;
-  font-family:"Arial",sans-serif;
-}
-
-/* ============ 车厢场景 ============ */
-.carriage-scene{
-  position:fixed;inset:0;z-index:5;pointer-events:none;
-  opacity:0;transition:opacity 1.5s ease;
-}
-.carriage-scene.show{opacity:1}
-
-.seat{
-  position:absolute;
-  width:100px;height:140px;
-  border-radius:55px 55px 8px 8px;
-  background:linear-gradient(180deg,rgba(50,75,105,0.45),rgba(28,48,72,0.25));
-  border:1px solid rgba(120,160,210,0.15);
-  box-shadow:inset 0 10px 30px rgba(0,0,0,0.4);
-  transition:all .5s ease;
-}
-.seat.left{left:6%;top:38%}
-.seat.right{right:6%;top:38%}
-.seat.center{left:50%;transform:translateX(-50%);top:38%;width:110px;height:150px}
-
-.passenger{
-  position:absolute;
-  width:70px;height:120px;
-  border-radius:40px 40px 12px 12px;
-  background:radial-gradient(ellipse at 50% 20%,rgba(200,225,250,0.18),transparent 70%);
-  filter:blur(8px);
-  transition:all 1s ease;
-}
-.passenger.p1{left:calc(6% + 15px);top:42%}
-.passenger.p2{right:calc(6% + 15px);top:42%}
-.passenger.p3{left:50%;transform:translateX(-50%);top:42%}
-
-/* ============ 对话 ============ */
-.dialogue{
-  font-size:.95rem;line-height:2;
-  color:#b8ccdf;max-width:340px;
-  text-align:left;margin-bottom:24px;
-}
-.dialogue .speaker{
-  color:#d8b870;font-style:italic;
-  font-size:.82rem;letter-spacing:2px;
-  display:block;margin-bottom:4px;
-}
-.dialogue .speaker.you{color:#7aaad8}
-.dialogue .speaker.amber{color:#e0b860;text-shadow:0 0 10px rgba(220,180,100,0.35)}
-.dialogue p{margin-bottom:10px}
-.dialogue .whisper{
-  color:#7a98b8;font-style:italic;
-  font-size:.85rem;padding-left:16px;
-  border-left:2px solid rgba(140,180,220,0.2);
-  margin:10px 0;
-}
-
-/* 问题卡片 */
-.question-card{
-  width:100%;max-width:340px;
-  background:rgba(16,28,44,0.85);
-  border:1px solid rgba(200,160,80,0.3);
-  border-radius:16px;
-  padding:22px 20px;
-  margin-bottom:24px;
-  box-shadow:0 0 40px rgba(200,160,80,0.1);
-}
-.question-label{
-  font-size:.6rem;letter-spacing:4px;
-  color:#a08050;font-family:"Arial",sans-serif;
-  margin-bottom:14px;text-transform:uppercase;
-}
-.question-text{
-  font-size:1.05rem;line-height:1.9;
-  color:#e0d0b0;margin-bottom:22px;
-  font-style:italic;
-}
-.choice-group{display:flex;gap:12px;justify-content:center}
-.choice-btn{
-  flex:1;
-  padding:12px 0;
-  background:transparent;
-  border:1px solid rgba(200,160,80,0.4);
-  border-radius:12px;
-  color:#d8b870;
-  font-size:.88rem;
-  letter-spacing:3px;
-  cursor:pointer;
-  transition:all .3s ease;
-  font-family:"Georgia","宋体",serif;
-  touch-action:manipulation;
-  user-select:none;
-}
-.choice-btn:active{transform:scale(0.96)}
-.choice-btn:hover,.choice-btn:active{
-  border-color:rgba(220,180,100,0.8);
-  color:#f0d090;
-  box-shadow:0 0 25px rgba(200,160,80,0.25);
-}
-.choice-btn.selected{
-  border-color:rgba(220,180,100,0.9);
-  color:#f8e0a0;
-  background:rgba(200,160,80,0.12);
-  box-shadow:0 0 25px rgba(200,160,80,0.3);
-}
-
-/* ============ 查看票根提示 ============ */
-.peek-hint{
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  margin-bottom:24px;
-  cursor:pointer;
-  animation:peekBounce 2s ease-in-out infinite;
-}
-@keyframes peekBounce{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
-}
-.peek-arrow{
-  font-size:1.4rem;
-  color:#e0b860;
-  text-shadow:0 0 15px rgba(220,180,100,0.6);
-  animation:arrowPoint 1.5s ease-in-out infinite;
-}
-@keyframes arrowPoint{
-  0%,100%{transform:rotate(0deg) scale(1)}
-  50%{transform:rotate(-8deg) scale(1.1)}
-}
-.peek-text{
-  font-size:.72rem;
-  letter-spacing:4px;
-  color:#c8a860;
-  font-style:italic;
-  text-shadow:0 0 10px rgba(200,160,80,0.3);
-}
-
-/* ============ 票根查看 ============ */
-.ticket-view{
-  width:100%;max-width:320px;
-  background:
-    linear-gradient(135deg,rgba(30,46,68,0.96),rgba(16,28,44,0.98)),
-    repeating-linear-gradient(45deg,rgba(200,170,110,0.02) 0px,rgba(200,170,110,0.02) 2px,transparent 2px,transparent 6px);
-  border:1px solid rgba(200,170,110,0.4);
-  border-radius:10px;
-  padding:22px 20px;
-  margin-bottom:24px;
-  box-shadow:0 0 60px rgba(200,170,110,0.15),inset 0 1px 0 rgba(220,190,130,0.15);
-  position:relative;
-  animation:ticketViewIn .8s ease forwards;
-  clip-path:polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
-}
-@keyframes ticketViewIn{0%{opacity:0;transform:scale(0.9) rotate(-2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-
-.ticket-view::after{
-  content:"";
-  position:absolute;
-  top:0;right:0;
-  width:40px;height:40px;
-  background:
-    linear-gradient(225deg,transparent 46%,rgba(200,170,110,0.4) 48%,transparent 52%),
-    linear-gradient(200deg,transparent 60%,rgba(200,170,110,0.2) 62%,transparent 66%);
-  pointer-events:none;
-}
-
-.ticket-punch{
-  position:absolute;
-  width:12px;height:12px;
-  background:#0a1220;
-  border-radius:50%;
-  border:1px solid rgba(200,170,110,0.3);
-}
-.ticket-punch.p1{left:-6px;top:30%}
-.ticket-punch.p2{left:-6px;top:70%}
-.ticket-punch.p3{right:-6px;bottom:40%}
-
-.ticket-view-header{
-  font-size:.55rem;letter-spacing:4px;
-  color:#a08050;font-family:"Arial",sans-serif;
-  margin-bottom:14px;text-align:left;
-  padding-bottom:8px;
-  border-bottom:1px dashed rgba(200,170,110,0.2);
-}
-.ticket-view-name{
-  font-size:1.15rem;letter-spacing:5px;
-  color:#e8c880;
-  text-shadow:0 0 15px rgba(220,180,100,0.4);
-  margin-bottom:4px;text-align:left;
-}
-.ticket-view-sub{
-  font-size:.6rem;letter-spacing:3px;
-  color:#a08050;margin-bottom:14px;text-align:left;
-  font-family:"Courier New",monospace;
-}
-.ticket-view-tags{
-  display:flex;flex-wrap:wrap;gap:6px;
-  margin:14px 0;
-}
-.tag{
-  font-size:.58rem;letter-spacing:2px;
-  padding:4px 10px;
-  border-radius:20px;
-  border:1px solid rgba(200,170,110,0.35);
-  color:#c8a860;
-  font-family:"Courier New",monospace;
-  background:rgba(200,170,110,0.06);
-}
-.tag.general{
-  border-color:rgba(160,200,240,0.4);
-  color:#a0c8e8;
-  background:rgba(160,200,240,0.06);
-}
-.ticket-view-quote{
-  font-size:.82rem;line-height:1.8;
-  color:#c0b090;
-  font-style:italic;
-  padding-top:14px;
-  border-top:1px dashed rgba(200,170,110,0.2);
-  text-align:left;
-}
-.ticket-view-quote .quote-mark{
-  color:#e0b860;
-  font-size:1rem;
-}
-.ticket-view-footer{
-  display:flex;justify-content:space-between;
-  margin-top:16px;
-  font-size:.52rem;letter-spacing:1px;
-  color:rgba(160,130,90,0.5);
-  font-family:"Courier New",monospace;
-}
-
-/* ============ 结局 ============ */
-.ending-title{
-  font-size:1.5rem;letter-spacing:6px;
-  color:#e0ecf8;margin-bottom:20px;
-  text-shadow:0 0 40px rgba(160,200,240,0.35);
-  font-style:italic;
-}
-.ending-subtitle{
-  font-size:.7rem;letter-spacing:5px;
-  color:#6a8aaa;margin-bottom:32px;
-  font-family:"Arial",sans-serif;
-}
-.ending-text{
-  font-size:.95rem;line-height:2.1;
-  color:#a0b8d0;max-width:340px;
-  margin:0 auto 36px;text-align:center;
-}
-.ending-text .wound{
-  color:#c86858;font-style:italic;
-  text-shadow:0 0 14px rgba(200,80,60,0.3);
-}
-.ending-text .amber-text{
-  color:#e0b860;font-style:italic;
-  text-shadow:0 0 14px rgba(220,180,100,0.35);
-}
-
-/* ============ 信物（冷色调设计） ============ */
-.token-page{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  width:100%;
-}
-.token-display{
-  width:140px;height:140px;
-  margin:0 auto 24px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:3rem;
-  border-radius:50%;
-  position:relative;
-  animation:tokenAppear 1s ease forwards;
-}
-@keyframes tokenAppear{0%{opacity:0;transform:scale(0.7) rotate(-10deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-
-.token-display.scarf-token{
-  background:radial-gradient(circle at 35% 35%,rgba(100,150,200,0.35),rgba(40,70,110,0.15));
-  border:1px solid rgba(120,170,220,0.45);
-  box-shadow:0 0 50px rgba(100,150,210,0.35),inset 0 0 40px rgba(80,130,190,0.18);
-  color:#b0d0f0;
-}
-.token-display.paper-token{
-  background:radial-gradient(circle at 35% 35%,rgba(80,160,170,0.35),rgba(30,80,90,0.15));
-  border:1px solid rgba(100,180,190,0.45);
-  box-shadow:0 0 50px rgba(80,160,170,0.35),inset 0 0 40px rgba(60,130,140,0.18);
-  color:#b0e0e0;
-}
-.token-display.earphone-token{
-  background:radial-gradient(circle at 35% 35%,rgba(120,110,180,0.35),rgba(60,50,110,0.15));
-  border:1px solid rgba(140,130,200,0.45);
-  box-shadow:0 0 50px rgba(120,110,180,0.35),inset 0 0 40px rgba(100,90,160,0.18);
-  color:#d0c8f0;
-}
-.token-display.relic-token{
-  background:radial-gradient(circle at 35% 35%,rgba(90,120,150,0.3),rgba(40,60,80,0.12));
-  border:1px solid rgba(110,140,170,0.4);
-  box-shadow:0 0 45px rgba(90,120,150,0.3),inset 0 0 35px rgba(70,100,130,0.15);
-  color:#a8c0d8;
-}
-
-.token-name{
-  font-size:.68rem;letter-spacing:5px;
-  color:#8aa8c0;margin-bottom:8px;
-  font-family:"Arial",sans-serif;
-}
-.token-desc{
-  font-size:.82rem;line-height:1.8;
-  color:#7a98b8;
-  font-style:italic;
-  max-width:280px;
-  margin:0 auto 28px;
-  text-align:center;
-}
-
-/* ============ 广播 ============ */
-.broadcast-box{
-  width:100%;max-width:340px;
-  background:rgba(16,28,44,0.85);
-  border:1px solid rgba(200,160,80,0.3);
-  border-radius:12px;
-  padding:16px 20px;
-  margin-bottom:24px;
-  box-shadow:0 0 30px rgba(200,160,80,0.1);
-}
-.broadcast-icon{
-  font-size:.9rem;color:#e0b860;
-  margin-bottom:8px;
-  display:block;
-}
-.broadcast-text{
-  font-size:.82rem;line-height:1.8;
-  color:#c8b090;
-  font-family:"Courier New",monospace;
-  letter-spacing:1px;
-}
-
-/* ============ 人流涌动 ============ */
-.crowd-scene{
-  position:fixed;inset:0;z-index:8;pointer-events:none;
-  opacity:0;transition:opacity 1.5s ease;
-}
-.crowd-scene.show{opacity:1}
-.crowd-figure{
-  position:absolute;
-  width:40px;height:70px;
-  border-radius:20px 20px 8px 8px;
-  background:radial-gradient(ellipse at 50% 20%,rgba(160,180,200,0.15),transparent 70%);
-  filter:blur(6px);
-  animation:crowdMove linear infinite;
-}
-@keyframes crowdMove{
-  0%{transform:translateY(0) translateX(0);opacity:0}
-  10%{opacity:.6}
-  90%{opacity:.6}
-  100%{transform:translateY(-110vh) translateX(20px);opacity:0}
-}
-
-/* ============ 拾起物品 ============ */
-.relic-grid{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  width:100%;
-  max-width:340px;
-  margin-bottom:28px;
-}
-.relic-card{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:16px 18px;
-  background:rgba(16,28,44,0.8);
-  border:1px solid rgba(140,170,200,0.25);
-  border-radius:14px;
-  cursor:pointer;
-  transition:all .4s ease;
-  touch-action:manipulation;
-  user-select:none;
-}
-.relic-card:hover,.relic-card:active{
-  border-color:rgba(180,215,255,0.6);
-  background:rgba(22,38,58,0.9);
-  box-shadow:0 0 30px rgba(120,170,230,0.2);
-  transform:translateY(-2px);
-}
-.relic-card.picked{
-  border-color:rgba(160,200,240,0.5);
-  background:rgba(20,40,60,0.9);
-  box-shadow:0 0 20px rgba(140,180,220,0.25);
-}
-.relic-icon{
-  width:52px;height:52px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.6rem;
-  border-radius:50%;
-  flex-shrink:0;
-  background:radial-gradient(circle,rgba(90,120,150,0.25),transparent 70%);
-  border:1px solid rgba(110,140,170,0.4);
-  color:#a8c0d8;
-}
-.relic-info{
-  flex:1;
-  text-align:left;
-}
-.relic-name{
-  font-size:.85rem;
-  letter-spacing:2px;
-  color:#c0d4e8;
-  margin-bottom:4px;
-}
-.relic-desc{
-  font-size:.7rem;
-  color:#7a98b8;
-  font-style:italic;
-  line-height:1.5;
-}
-.relic-check{
-  width:24px;height:24px;
-  border-radius:50%;
-  border:1px solid rgba(140,170,200,0.3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.8rem;
-  color:transparent;
-  transition:all .3s ease;
-  flex-shrink:0;
-}
-.relic-card.picked .relic-check{
-  border-color:rgba(160,200,240,0.6);
-  color:#a8c8e8;
-  background:rgba(120,170,220,0.15);
-}
-
-/* ============ 信物总和页（每页最多四个） ============ */
-.token-choice-grid{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  width:100%;
-  max-width:340px;
-  margin-bottom:20px;
-}
-.token-choice-card{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:16px 18px;
-  background:rgba(16,28,44,0.8);
-  border:1px solid rgba(140,170,200,0.25);
-  border-radius:14px;
-  cursor:pointer;
-  transition:all .4s ease;
-  touch-action:manipulation;
-  user-select:none;
-}
-.token-choice-card:hover,.token-choice-card:active{
-  border-color:rgba(180,215,255,0.6);
-  background:rgba(22,38,58,0.9);
-  box-shadow:0 0 30px rgba(120,170,230,0.2);
-  transform:translateY(-2px);
-}
-.token-choice-icon{
-  width:52px;height:52px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.6rem;
-  border-radius:50%;
-  flex-shrink:0;
-}
-.token-choice-icon.scarf{
-  background:radial-gradient(circle,rgba(100,150,200,0.3),transparent 70%);
-  border:1px solid rgba(120,170,220,0.45);
-  color:#b0d0f0;
-}
-.token-choice-icon.paper{
-  background:radial-gradient(circle,rgba(80,160,170,0.3),transparent 70%);
-  border:1px solid rgba(100,180,190,0.45);
-  color:#b0e0e0;
-}
-.token-choice-icon.earphone{
-  background:radial-gradient(circle,rgba(120,110,180,0.3),transparent 70%);
-  border:1px solid rgba(140,130,200,0.45);
-  color:#d0c8f0;
-}
-.token-choice-icon.relic1{
-  background:radial-gradient(circle,rgba(90,120,150,0.3),transparent 70%);
-  border:1px solid rgba(110,140,170,0.4);
-  color:#a8c0d8;
-}
-.token-choice-icon.relic2{
-  background:radial-gradient(circle,rgba(90,120,150,0.3),transparent 70%);
-  border:1px solid rgba(110,140,170,0.4);
-  color:#a8c0d8;
-}
-.token-choice-info{
-  flex:1;
-  text-align:left;
-}
-.token-choice-name{
-  font-size:.85rem;
-  letter-spacing:2px;
-  color:#c0d4e8;
-  margin-bottom:4px;
-}
-.token-choice-desc{
-  font-size:.7rem;
-  color:#7a98b8;
-  font-style:italic;
-  line-height:1.5;
-}
-.token-choice-card.disabled{
-  opacity:0.25;
-  pointer-events:none;
-}
-
-/* 分页按钮 */
-.pagination{
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  margin-bottom:20px;
-}
-.page-btn{
-  padding:8px 20px;
-  background:transparent;
-  border:1px solid rgba(160,200,240,0.3);
-  border-radius:30px;
-  color:#8aa8c0;
-  font-size:.72rem;
-  letter-spacing:3px;
-  cursor:pointer;
-  transition:all .3s ease;
-  font-family:"Georgia","宋体",serif;
-  touch-action:manipulation;
-}
-.page-btn.active{
-  border-color:rgba(200,225,255,0.7);
-  color:#e0ecf8;
-  background:rgba(120,170,220,0.12);
-  box-shadow:0 0 20px rgba(120,170,230,0.2);
-}
-.page-btn:active{transform:scale(0.95)}
-
-/* ============ 进度 ============ */
-.carriage-dots{
-  position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));
-  left:0;right:0;display:flex;justify-content:center;gap:10px;
-  z-index:30;pointer-events:none;
-}
-.carriage-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:rgba(70,95,125,0.5);
-  transition:all .5s;
-}
-.carriage-dot.active{background:rgba(180,210,245,0.8);box-shadow:0 0 10px rgba(180,220,255,0.6)}
-.carriage-dot.visited{background:rgba(140,180,220,0.5)}
-
-/* ============ 飘雪 ============ */
-.float-snowflake{
-  position:fixed;color:rgba(210,230,255,0.15);pointer-events:none;z-index:6;
-  animation:floatDown linear infinite;user-select:none;
-}
-@keyframes floatDown{0%{transform:translateY(-40px) rotate(0deg);opacity:0}10%{opacity:.6}90%{opacity:.5}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
-
-/* ============ 响应式 ============ */
-@media(max-height:640px){
-  .title{font-size:1.7rem;letter-spacing:8px}
-  .subtitle{margin-bottom:32px}
-  .ticket{width:260px;padding:20px 18px}
-  .btn{padding:12px 34px;font-size:.85rem;letter-spacing:4px}
-  .dialogue{font-size:.88rem}
-  .ending-text{font-size:.88rem}
-  .token-display{width:110px;height:110px;font-size:2.4rem}
-  .question-text{font-size:.95rem}
-  .name-input-wrap{width:260px}
-  .ticket-view{padding:18px 16px}
-  .cut-ticket-wrap{width:260px}
-  .cut-ticket{width:260px;padding:20px 18px}
-}
-</style>
-</head>
-<body>
-
-<div class="bg" id="bg"></div>
-
-<div class="platform-light l1" id="pl1"></div>
-<div class="platform-light l2" id="pl2"></div>
-<div class="platform-light l3" id="pl3"></div>
-
-<canvas id="snow-canvas"></canvas>
-
-<div class="carriage-interior" id="carriageInterior"></div>
-<div class="reading-lamp" id="readingLamp"></div>
-
-<div class="carriage-scene" id="carriageScene">
-  <div class="seat left"></div>
-  <div class="seat right"></div>
-  <div class="seat center"></div>
-  <div class="passenger p1" id="passenger1" style="opacity:0"></div>
-  <div class="passenger p2" id="passenger2" style="opacity:0"></div>
-  <div class="passenger p3" id="passenger3" style="opacity:0"></div>
-</div>
-
-<div class="crowd-scene" id="crowdScene"></div>
-
-<!-- ============ 起始：输入名字 ============ -->
-<div class="screen active" id="screen-start">
-  <div class="title">冰岛列车</div>
-  <div class="subtitle">ICELAND EXPRESS · 即将运行</div>
-
-  <div class="ending-text" style="margin-bottom:32px;font-size:1rem">
-    一辆去往冰岛的列车即将运行。<br>
-    窗外是永夜，铁轨延伸进雪原深处。<br><br>
-    列车员递给你一张空白票根。<br>
-    <span style="color:#e0b860;font-style:italic">"请写下你的名字。"</span>
-  </div>
-
-  <div class="name-input-wrap">
-    <input type="text" class="name-input" id="nameInput" placeholder="输入你的名字" maxlength="10" autocomplete="off">
-  </div>
-
-  <button class="btn" id="btn-print" disabled>开 始 登 车</button>
-</div>
-
-<!-- ============ 票根生成 ============ -->
-<div class="screen" id="screen-ticket">
-  <div class="ending-subtitle" style="margin-bottom:28px">你 的 票 根</div>
-
-  <div class="ticket-wrap">
-    <div class="ticket" id="ticket">
-      <div class="ticket-header">BOARDING PASS · 乘车凭证</div>
-      <div class="ticket-route">雪原站 <span class="arrow">→</span> 冰岛</div>
-      <div class="ticket-name">乘客 <span class="name-value" id="ticketName">—</span></div>
-      <div class="ticket-seat">座位号 <span class="seat-num">07A</span></div>
-      <div class="ticket-info">
-        <span>日期 <span class="value">今夜</span></span>
-        <span>时间 <span class="value">21:47</span></span>
-      </div>
-      <div class="ticket-serial">NO. SN-0047</div>
-    </div>
-  </div>
-
-  <div class="ending-text" style="font-size:.9rem;margin-bottom:28px" id="ticketHint">
-    票根已生成，完整无缺。<br>
-    <span style="color:#e0b860;font-style:italic">"点击下方按钮，撕下票角即可登车。"</span>
-  </div>
-
-  <button class="btn" id="btn-board">撕 下 票 角</button>
-</div>
-
-<!-- ============ 撕角动画层 ============ -->
-<div class="cut-overlay" id="cutOverlay">
-  <div class="cut-ticket-wrap">
-    <div class="cut-ticket" id="cutTicket">
-      <div class="torn-corner" id="tornCorner"></div>
-      <div class="torn-edge" id="tornEdge"></div>
-      <div class="ticket-header">BOARDING PASS · 乘车凭证</div>
-      <div class="ticket-route">雪原站 <span class="arrow">→</span> 冰岛</div>
-      <div class="ticket-name">乘客 <span class="name-value" id="cutTicketName">—</span></div>
-      <div class="ticket-seat">座位号 <span class="seat-num">07A</span></div>
-      <div class="ticket-info">
-        <span>日期 <span class="value">今夜</span></span>
-        <span>时间 <span class="value">21:47</span></span>
-      </div>
-      <div class="ticket-serial">NO. SN-0047</div>
-    </div>
-  </div>
-  <div class="cut-text" id="cutText">正 在 撕 下 票 角</div>
-</div>
-
-<!-- ============ 欢迎登车 ============ -->
-<div class="welcome-text" id="welcomeText">
-  <div class="welcome-title">欢 迎 登 车</div>
-  <div class="welcome-sub">WELCOME ABOARD</div>
-</div>
-
-<!-- ============ 拒绝 ============ -->
-<div class="screen" id="screen-refuse">
-  <div class="ending-title">你 没 有 上 车</div>
-  <div class="ending-subtitle">ENDING · 逃 避</div>
-
-  <div class="ending-text">
-    你转身离开站台。<br>
-    身后的列车缓缓启动，汽笛声在雪夜里传得很远。<br><br>
-    你告诉自己，这是对的选择。<br>
-    可是后来每一个下雪的夜晚，<br>
-    你都会想起那辆没有登上的列车。<br>
-    和那个你永远不知道会遇见谁的可能性。<br><br>
-    <span class="wound">有些遗憾，是用一辈子都补不回来的。</span>
-  </div>
-
-  <button class="btn" id="btn-restart1">重 新 选 择</button>
-</div>
-
-<!-- ============ 上车 ============ -->
-<div class="screen" id="screen-carriage">
-  <div class="ending-title">冰 岛 列 车</div>
-  <div class="ending-subtitle">21:47 · 车 厢 内</div>
-
-  <div class="ending-text" style="margin-bottom:36px">
-    你上了车。<br>
-    车厢很空，暖气开得很足，但还是很冷。<br><br>
-    你找到了自己的座位——07A。<br>
-    对面、左边、右边的座位上，<br>
-    各坐着一位女性。<br><br>
-    她们都看着窗外，没有说话。
-  </div>
-
-  <button class="btn" id="btn-explore">看 看 车 厢 里 的 人</button>
-</div>
-
-<!-- ============ 选择乘客 ============ -->
-<div class="screen" id="screen-choose">
-  <div class="ending-subtitle" style="margin-bottom:28px">选 择 一 位 乘 客 · 走 近 她 们</div>
-
-  <div class="btn-group" style="width:100%;max-width:340px">
-    <button class="btn amber" id="btn-p1" style="width:100%">左边座位 · 穿黑大衣的女人</button>
-    <button class="btn amber" id="btn-p2" style="width:100%">右边座位 · 抱旧书的女人</button>
-    <button class="btn amber" id="btn-p3" style="width:100%">对面座位 · 戴耳机的女人</button>
-  </div>
-</div>
-
-<!-- ============ 支线1：黑大衣 ============ -->
-<div class="screen" id="screen-p1-intro">
-  <div class="ending-subtitle">支 线 一 · 黑 大 衣 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">陌生人</span>……你也是去冰岛？</p>
-    <p><span class="speaker you">你</span>嗯。</p>
-    <p><span class="speaker amber">陌生人</span>这趟车，很少有人坐。</p>
-    <p><span class="speaker amber">陌生人</span>我叫琥珀。</p>
-  </div>
-
-  <div class="peek-hint" id="peek-p1">
-    <span class="peek-arrow">↘</span>
-    <span class="peek-text">是否查看对方的票根</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p1-view">查 看 票 根</button>
-    <button class="btn" id="btn-p1-skip">跳 过</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p1-ticket">
-  <div class="ending-subtitle">支 线 一 · 黑 大 衣 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>喏，你想看就看吧。</p>
-  </div>
-
-  <div class="ticket-view">
-    <div class="ticket-punch p1"></div>
-    <div class="ticket-punch p2"></div>
-    <div class="ticket-punch p3"></div>
-    <div class="ticket-view-header">BOARDING PASS · 乘客票根</div>
-    <div class="ticket-view-name">琥珀</div>
-    <div class="ticket-view-sub">SEAT 07B · 雪原站 → 冰岛</div>
-    <div class="ticket-view-tags">
-      <span class="tag general">23le</span>
-      <span class="tag general">风向天秤</span>
-      <span class="tag general">INTJ</span>
-      <span class="tag">DS虐</span>
-      <span class="tag">虐病虐</span>
-      <span class="tag">虐虐互转</span>
-      <span class="tag">高擦虐</span>
-      <span class="tag">人设虐</span>
-    </div>
-    <div class="ticket-view-quote">
-      <span class="quote-mark">"</span>如果我们还有时间，这一趟列车有终点吗<span class="quote-mark">"</span>
-    </div>
-    <div class="ticket-view-footer">
-      <span>NO. SN-0047-B</span>
-      <span>21:47</span>
-    </div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p1-to-q">把 票 根 还 给 她</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p1-q1">
-  <div class="ending-subtitle">支 线 一 · 黑 大 衣 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>谢谢。……你看起来像个会思考的人。</p>
-    <p><span class="speaker amber">琥珀</span>我想问你一个问题。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 1 / 2</div>
-    <div class="question-text">"等一个不会回来的人，值不值得？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="值得" data-q="1">值 得</button>
-      <button class="choice-btn" data-answer="不值得" data-q="1">不 值 得</button>
-    </div>
-  </div>
-</div>
-
-<div class="screen" id="screen-p1-q2">
-  <div class="ending-subtitle">支 线 一 · 黑 大 衣 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你说得对，也不对。</p>
-    <p><span class="speaker amber">琥珀</span>但我想听你真实的答案。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 2 / 2</div>
-    <div class="question-text">"如果付出真心注定没有结果，你还愿意付出吗？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="愿意" data-q="2">愿 意</button>
-      <button class="choice-btn" data-answer="不愿意" data-q="2">不 愿 意</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 支线1 信物 ============ -->
-<div class="screen" id="screen-p1-token">
-  <div class="ending-subtitle">支 线 一 · 信 物</div>
-
-  <div class="token-page">
-    <div class="token-display scarf-token">🧣</div>
-    <div class="token-name">褪 色 的 围 巾</div>
-    <div class="token-desc" id="p1-token-desc"></div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p1-accept">收 下 信 物</button>
-    <button class="btn danger" id="btn-p1-refuse">不 收 下</button>
-  </div>
-</div>
-
-<!-- ============ 支线2：旧书 ============ -->
-<div class="screen" id="screen-p2-intro">
-  <div class="ending-subtitle">支 线 二 · 抱 旧 书 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">陌生人</span>……你也去冰岛？</p>
-    <p><span class="speaker you">你</span>嗯。</p>
-    <p><span class="speaker amber">陌生人</span>那地方很冷。</p>
-    <p><span class="speaker amber">陌生人</span>我叫琥珀。</p>
-  </div>
-
-  <div class="peek-hint" id="peek-p2">
-    <span class="peek-arrow">↘</span>
-    <span class="peek-text">是否查看对方的票根</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p2-view">查 看 票 根</button>
-    <button class="btn" id="btn-p2-skip">跳 过</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p2-ticket">
-  <div class="ending-subtitle">支 线 二 · 抱 旧 书 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你也想看？拿去吧。</p>
-  </div>
-
-  <div class="ticket-view">
-    <div class="ticket-punch p1"></div>
-    <div class="ticket-punch p2"></div>
-    <div class="ticket-punch p3"></div>
-    <div class="ticket-view-header">BOARDING PASS · 乘客票根</div>
-    <div class="ticket-view-name">琥珀</div>
-    <div class="ticket-view-sub">SEAT 07C · 雪原站 → 冰岛</div>
-    <div class="ticket-view-tags">
-      <span class="tag general">23le</span>
-      <span class="tag general">风向天秤</span>
-      <span class="tag general">INTJ</span>
-      <span class="tag">剖析</span>
-      <span class="tag">逻辑</span>
-      <span class="tag">中低恋</span>
-      <span class="tag">白话</span>
-      <span class="tag">共鸣</span>
-      <span class="tag">贬低</span>
-      <span class="tag">涉三</span>
-      <span class="tag">温柔刀</span>
-      <span class="tag">应用心理学</span>
-      <span class="tag">哲学观点</span>
-      <span class="tag">宗教理念</span>
-      <span class="tag">循序渐进</span>
-    </div>
-    <div class="ticket-view-quote">
-      <span class="quote-mark">"</span>你相信缘分吗我是说你和我<span class="quote-mark">"</span>
-    </div>
-    <div class="ticket-view-footer">
-      <span>NO. SN-0047-C</span>
-      <span>21:47</span>
-    </div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p2-to-q">把 票 根 还 给 她</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p2-q1">
-  <div class="ending-subtitle">支 线 二 · 抱 旧 书 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你看起来像个会思考的人。</p>
-    <p><span class="speaker amber">琥珀</span>我想问你一个问题。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 1 / 2</div>
-    <div class="question-text">"明知没有结局的感情，还要开始吗？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="要" data-q="1">要</button>
-      <button class="choice-btn" data-answer="不要" data-q="1">不 要</button>
-    </div>
-  </div>
-</div>
-
-<div class="screen" id="screen-p2-q2">
-  <div class="ending-subtitle">支 线 二 · 抱 旧 书 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你的答案，让我想起一个人。</p>
-    <p><span class="speaker amber">琥珀</span>但我还想再问你一句。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 2 / 2</div>
-    <div class="question-text">"付出真心，值不值得？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="值得" data-q="2">值 得</button>
-      <button class="choice-btn" data-answer="不值得" data-q="2">不 值 得</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 支线2 信物 ============ -->
-<div class="screen" id="screen-p2-token">
-  <div class="ending-subtitle">支 线 二 · 信 物</div>
-
-  <div class="token-page">
-    <div class="token-display paper-token">📖</div>
-    <div class="token-name">泛 黄 的 纸 片</div>
-    <div class="token-desc" id="p2-token-desc"></div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p2-accept">收 下 信 物</button>
-    <button class="btn danger" id="btn-p2-refuse">不 收 下</button>
-  </div>
-</div>
-
-<!-- ============ 支线3：耳机 ============ -->
-<div class="screen" id="screen-p3-intro">
-  <div class="ending-subtitle">支 线 三 · 戴 耳 机 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">陌生人</span>……你也去冰岛？</p>
-    <p><span class="speaker you">你</span>嗯。</p>
-    <p><span class="speaker amber">陌生人</span>车很慢，会无聊。</p>
-    <p><span class="speaker amber">陌生人</span>我叫琥珀。</p>
-  </div>
-
-  <div class="peek-hint" id="peek-p3">
-    <span class="peek-arrow">↘</span>
-    <span class="peek-text">是否查看对方的票根</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p3-view">查 看 票 根</button>
-    <button class="btn" id="btn-p3-skip">跳 过</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p3-ticket">
-  <div class="ending-subtitle">支 线 三 · 戴 耳 机 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你是第一个想看的人。给。</p>
-  </div>
-
-  <div class="ticket-view">
-    <div class="ticket-punch p1"></div>
-    <div class="ticket-punch p2"></div>
-    <div class="ticket-punch p3"></div>
-    <div class="ticket-view-header">BOARDING PASS · 乘客票根</div>
-    <div class="ticket-view-name">琥珀</div>
-    <div class="ticket-view-sub">SEAT 07D · 雪原站 → 冰岛</div>
-    <div class="ticket-view-tags">
-      <span class="tag general">23le</span>
-      <span class="tag general">风向天秤</span>
-      <span class="tag general">INTJ</span>
-      <span class="tag">拉扯</span>
-      <span class="tag">白话</span>
-      <span class="tag">微剖</span>
-      <span class="tag">温柔刀</span>
-      <span class="tag">含憾而别</span>
-      <span class="tag">恨海情天</span>
-      <span class="tag">白骑士</span>
-      <span class="tag">逻辑</span>
-      <span class="tag">中高恋</span>
-      <span class="tag">树洞型</span>
-      <span class="tag">涉三</span>
-      <span class="tag">微自虐</span>
-      <span class="tag">酸涩感</span>
-      <span class="tag">无力感</span>
-    </div>
-    <div class="ticket-view-quote">
-      <span class="quote-mark">"</span>如果我们都能陪伴彼此很久的话<span class="quote-mark">"</span>
-    </div>
-    <div class="ticket-view-footer">
-      <span>NO. SN-0047-D</span>
-      <span>21:47</span>
-    </div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p3-to-q">把 票 根 还 给 她</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-p3-q1">
-  <div class="ending-subtitle">支 线 三 · 戴 耳 机 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你看起来像个会思考的人。</p>
-    <p><span class="speaker amber">琥珀</span>我想问你一个问题。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 1 / 2</div>
-    <div class="question-text">"放不下一个人，是深情还是执念？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="深情" data-q="1">深 情</button>
-      <button class="choice-btn" data-answer="执念" data-q="1">执 念</button>
-    </div>
-  </div>
-</div>
-
-<div class="screen" id="screen-p3-q2">
-  <div class="ending-subtitle">支 线 三 · 戴 耳 机 的 女 人</div>
-
-  <div class="dialogue">
-    <p><span class="speaker amber">琥珀</span>你说得对，也不对。</p>
-    <p><span class="speaker amber">琥珀</span>但我想听你真实的答案。</p>
-  </div>
-
-  <div class="question-card">
-    <div class="question-counter">问 题 2 / 2</div>
-    <div class="question-text">"如果明知会失去，还愿意拥有吗？"</div>
-    <div class="choice-group">
-      <button class="choice-btn" data-answer="愿意" data-q="2">愿 意</button>
-      <button class="choice-btn" data-answer="不愿意" data-q="2">不 愿 意</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 支线3 信物 ============ -->
-<div class="screen" id="screen-p3-token">
-  <div class="ending-subtitle">支 线 三 · 信 物</div>
-
-  <div class="token-page">
-    <div class="token-display earphone-token">🎧</div>
-    <div class="token-name">一 只 旧 耳 机</div>
-    <div class="token-desc" id="p3-token-desc"></div>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-p3-accept">收 下 信 物</button>
-    <button class="btn danger" id="btn-p3-refuse">不 收 下</button>
-  </div>
-</div>
-
-<!-- ============ 列车临近终点 ============ -->
-<div class="screen" id="screen-farewell">
-  <div class="ending-title">列 车 临 近 终 点</div>
-  <div class="ending-subtitle">BEFORE THE END</div>
-
-  <div class="broadcast-box">
-    <span class="broadcast-icon">📢 列车广播</span>
-    <div class="broadcast-text">
-      "各位旅客，列车即将抵达终点站。<br>
-      请带好您的随身物品，<br>
-      与同行的人好好道别。"
-    </div>
-  </div>
-
-  <div class="ending-text">
-    感谢这场相遇。<br>
-    雪原上的每一段对话，都值得被记住。<br><br>
-    <span class="wound">但你们，快要走散了。</span>
-  </div>
-
-  <button class="btn" id="btn-farewell-next">看 看 座 位</button>
-</div>
-
-<!-- ============ 拾起遗留物品 ============ -->
-<div class="screen" id="screen-relic">
-  <div class="ending-title">遗 落 的 物 品</div>
-  <div class="ending-subtitle">LOST & FOUND · 两 件 遗 物</div>
-
-  <div class="ending-text" style="font-size:.85rem;margin-bottom:24px">
-    她似乎遗落了什么东西。<br>
-    座位上静静躺着两件物品。
-  </div>
-
-  <div class="relic-grid" id="relicGrid">
-    <div class="relic-card" id="relic-1" data-relic="1">
-      <div class="relic-icon">🪞</div>
-      <div class="relic-info">
-        <div class="relic-name">一 面 旧 镜</div>
-        <div class="relic-desc">镜面有裂痕，映出模糊的人影</div>
-      </div>
-      <div class="relic-check">✓</div>
-    </div>
-    <div class="relic-card" id="relic-2" data-relic="2">
-      <div class="relic-icon">🗝️</div>
-      <div class="relic-info">
-        <div class="relic-name">一 把 小 钥 匙</div>
-        <div class="relic-desc">钥匙上刻着一个字母，已经磨损不清</div>
-      </div>
-      <div class="relic-check">✓</div>
-    </div>
-  </div>
-
-  <div class="ending-text" style="font-size:.8rem;color:#7a98b8;margin-bottom:24px" id="relicHint">
-    两件都需要拾起
-  </div>
-
-  <button class="btn amber" id="btn-relic-confirm" disabled>确 认 拾 起</button>
-</div>
-
-<!-- ============ 信物总和页（分页，每页最多四个） ============ -->
-<div class="screen" id="screen-token-choice">
-  <div class="ending-title">你 手 中 的 物 品</div>
-  <div class="ending-subtitle">YOUR ITEMS · 你 持 有 的 物 品</div>
-
-  <div class="ending-text" style="font-size:.85rem;margin-bottom:20px">
-    你握着手中的物品，<br>
-    它们开始微微发光。
-  </div>
-
-  <!-- 第一页 -->
-  <div class="token-choice-grid" id="tokenPage1">
-    <div class="token-choice-card" id="choice-p1" data-token="p1">
-      <div class="token-choice-icon scarf">🧣</div>
-      <div class="token-choice-info">
-        <div class="token-choice-name">褪 色 的 围 巾</div>
-        <div class="token-choice-desc">通往一条被雪覆盖的路</div>
-      </div>
-    </div>
-    <div class="token-choice-card" id="choice-p2" data-token="p2">
-      <div class="token-choice-icon paper">📖</div>
-      <div class="token-choice-info">
-        <div class="token-choice-name">泛 黄 的 纸 片</div>
-        <div class="token-choice-desc">通往一间没有结尾的老房子</div>
-      </div>
-    </div>
-    <div class="token-choice-card" id="choice-p3" data-token="p3">
-      <div class="token-choice-icon earphone">🎧</div>
-      <div class="token-choice-info">
-        <div class="token-choice-name">一 只 旧 耳 机</div>
-        <div class="token-choice-desc">通往一首没有唱完的歌</div>
-      </div>
-    </div>
-    <div class="token-choice-card" id="choice-relic1" data-token="relic1">
-      <div class="token-choice-icon relic1">🪞</div>
-      <div class="token-choice-info">
-        <div class="token-choice-name">一 面 旧 镜</div>
-        <div class="token-choice-desc">映出另一个自己</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 第二页 -->
-  <div class="token-choice-grid" id="tokenPage2" style="display:none">
-    <div class="token-choice-card" id="choice-relic2" data-token="relic2">
-      <div class="token-choice-icon relic2">🗝️</div>
-      <div class="token-choice-info">
-        <div class="token-choice-name">一 把 小 钥 匙</div>
-        <div class="token-choice-desc">打开一扇不知道通往哪里的门</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 分页按钮 -->
-  <div class="pagination" id="pagination">
-    <button class="page-btn active" id="page-btn-1" data-page="1">第 一 页</button>
-    <button class="page-btn" id="page-btn-2" data-page="2">第 二 页</button>
-  </div>
-
-  <div class="ending-text" style="font-size:.75rem;color:#7a98b8">
-    你只持有拾起的物品
-  </div>
-</div>
-
-<!-- ============ 信物链接页面（围巾） ============ -->
-<div class="screen" id="screen-link-scarf">
-  <div class="ending-title">褪 色 的 围 巾</div>
-  <div class="ending-subtitle">TOKEN LINK · 围 巾</div>
-
-  <div class="token-display scarf-token" style="margin-bottom:24px">🧣</div>
-
-  <div class="ending-text">
-    围巾在你手中变得越来越暖。<br>
-    你仿佛看见一条雪路，<br>
-    路的尽头站着一个穿黑大衣的身影。<br><br>
-    <span class="amber-text">"如果你愿意，<br>
-    可以沿着这条路一直走。"</span><br><br>
-    <span class="wound">新的链接，正在生成……</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-link-scarf-go">进 入 新 链 接</button>
-    <button class="btn" id="btn-link-scarf-back">回 到 选 择</button>
-  </div>
-</div>
-
-<!-- ============ 信物链接页面（纸片） ============ -->
-<div class="screen" id="screen-link-paper">
-  <div class="ending-title">泛 黄 的 纸 片</div>
-  <div class="ending-subtitle">TOKEN LINK · 纸 片</div>
-
-  <div class="token-display paper-token" style="margin-bottom:24px">📖</div>
-
-  <div class="ending-text">
-    纸片上的地址在你眼前浮现。<br>
-    你仿佛看见一间老房子，<br>
-    窗台上放着一本没有写完的书。<br><br>
-    <span class="amber-text">"如果你愿意，<br>
-    可以替我去看看。"</span><br><br>
-    <span class="wound">新的链接，正在生成……</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-link-paper-go">进 入 新 链 接</button>
-    <button class="btn" id="btn-link-paper-back">回 到 选 择</button>
-  </div>
-</div>
-
-<!-- ============ 信物链接页面（耳机） ============ -->
-<div class="screen" id="screen-link-earphone">
-  <div class="ending-title">一 只 旧 耳 机</div>
-  <div class="ending-subtitle">TOKEN LINK · 耳 机</div>
-
-  <div class="token-display earphone-token" style="margin-bottom:24px">🎧</div>
-
-  <div class="ending-text">
-    耳机里传来一首歌。<br>
-    你仿佛看见一片海，<br>
-    海边站着一个戴耳机的身影。<br><br>
-    <span class="amber-text">"如果你愿意，<br>
-    可以和我一起听完这首歌。"</span><br><br>
-    <span class="wound">新的链接，正在生成……</span>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn amber" id="btn-link-earphone-go">进 入 新 链 接</button>
-    <button class="btn" id="btn-link-earphone-back">回 到 选 择</button>
-  </div>
-</div>
-
-<!-- ============ 进度 ============ -->
-<div class="carriage-dots" id="carriageDots" style="display:none">
-  <div class="carriage-dot active" data-i="0"></div>
-  <div class="carriage-dot" data-i="1"></div>
-  <div class="carriage-dot" data-i="2"></div>
-  <div class="carriage-dot" data-i="3"></div>
-</div>
-
-<script>
-// ==================== 音频 ====================
-function playTrainSound() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    const duration = 4;
-    const sampleRate = ctx.sampleRate;
-    const buffer = ctx.createBuffer(2, sampleRate * duration, sampleRate);
-    for (let ch = 0; ch < 2; ch++) {
-      const data = buffer.getChannelData(ch);
-      for (let i = 0; i < data.length; i++) {
-        const t = i / sampleRate;
-        const progress = t / duration;
-        const rumble = Math.sin(2 * Math.PI * 45 * t) * 0.15;
-        const rumble2 = Math.sin(2 * Math.PI * 28 * t) * 0.1;
-        const noise = (Math.random() * 2 - 1) * 0.06;
-        let whistle = 0;
-        if (t > 0.3 && t < 1.5) {
-          const wEnv = Math.sin(Math.PI * (t - 0.3) / 1.2);
-          whistle = Math.sin(2 * Math.PI * 320 * t) * 0.12 * wEnv
-                  + Math.sin(2 * Math.PI * 480 * t) * 0.08 * wEnv;
-        }
-        const env = Math.min(1, progress * 3) * (1 - Math.max(0, (progress - 0.7) / 0.3));
-        data[i] = (rumble + rumble2 + noise + whistle) * env;
-      }
-    }
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const gain = ctx.createGain();
-    gain.gain.value = 0.5;
-    source.connect(gain);
-    gain.connect(ctx.destination);
-    source.start();
-    setTimeout(() => { try { ctx.close(); } catch(e) {} }, (duration + 1) * 1000);
-  } catch (e) {}
-}
-
-// ==================== 状态 ====================
-const state = {
-  boarded: false,
-  playerName: '',
-  storiesHeard: new Set(),
-  currentScreen: 'screen-start',
-  tokens: { p1: false, p2: false, p3: false },
-  relics: { r1: false, r2: false },
-  p1Answers: [],
-  p2Answers: [],
-  p3Answers: [],
-  tokenPage: 1
-};
-
-// ==================== DOM ====================
-const bg = document.getElementById('bg');
-const carriageInterior = document.getElementById('carriageInterior');
-const readingLamp = document.getElementById('readingLamp');
-const carriageScene = document.getElementById('carriageScene');
-const crowdScene = document.getElementById('crowdScene');
-const carriageDots = document.getElementById('carriageDots');
-const passenger1 = document.getElementById('passenger1');
-const passenger2 = document.getElementById('passenger2');
-const passenger3 = document.getElementById('passenger3');
-const nameInput = document.getElementById('nameInput');
-const btnPrint = document.getElementById('btn-print');
-
-// ==================== 页面切换 ====================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const screen = document.getElementById(id);
-  if (screen) {
-    screen.classList.add('active');
-    state.currentScreen = id;
-  }
-
-  const stationScreens = ['screen-start', 'screen-ticket', 'screen-refuse'];
-  const carriageScreens = ['screen-carriage', 'screen-choose'];
-  const tokenScreens = ['screen-p1-token', 'screen-p2-token', 'screen-p3-token'];
-  const farewellScreens = ['screen-farewell', 'screen-relic', 'screen-token-choice'];
-  const linkScreens = ['screen-link-scarf', 'screen-link-paper', 'screen-link-earphone'];
-
-  if (stationScreens.includes(id)) {
-    bg.className = 'bg station';
-    carriageInterior.classList.remove('show');
-    readingLamp.classList.remove('show');
-    carriageScene.classList.remove('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'none';
-    document.getElementById('pl1').style.opacity = '1';
-    document.getElementById('pl2').style.opacity = '1';
-    document.getElementById('pl3').style.opacity = '1';
-  } else if (carriageScreens.includes(id)) {
-    bg.className = 'bg carriage';
-    carriageInterior.classList.add('show');
-    readingLamp.classList.add('show');
-    carriageScene.classList.add('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'flex';
-    document.getElementById('pl1').style.opacity = '0';
-    document.getElementById('pl2').style.opacity = '0';
-    document.getElementById('pl3').style.opacity = '0';
-    passenger1.style.opacity = '1';
-    passenger2.style.opacity = '1';
-    passenger3.style.opacity = '1';
-    updateDots(1);
-  } else if (id.startsWith('screen-p') || tokenScreens.includes(id)) {
-    bg.className = 'bg carriage';
-    carriageInterior.classList.add('show');
-    readingLamp.classList.add('show');
-    carriageScene.classList.add('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'flex';
-    if (id.includes('p1')) {
-      passenger2.style.opacity = '0.15';
-      passenger3.style.opacity = '0.15';
-      passenger1.style.opacity = '1';
-    } else if (id.includes('p2')) {
-      passenger1.style.opacity = '0.15';
-      passenger3.style.opacity = '0.15';
-      passenger2.style.opacity = '1';
-    } else if (id.includes('p3')) {
-      passenger1.style.opacity = '0.15';
-      passenger2.style.opacity = '0.15';
-      passenger3.style.opacity = '1';
-    }
-    const idx = id.includes('p1') ? 1 : id.includes('p2') ? 2 : 3;
-    updateDots(idx);
-  } else if (farewellScreens.includes(id)) {
-    bg.className = 'bg farewell';
-    carriageInterior.classList.remove('show');
-    readingLamp.classList.remove('show');
-    carriageScene.classList.remove('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'none';
-  } else if (linkScreens.includes(id)) {
-    bg.className = 'bg amber';
-    carriageInterior.classList.remove('show');
-    readingLamp.classList.remove('show');
-    carriageScene.classList.remove('show');
-    crowdScene.classList.remove('show');
-    carriageDots.style.display = 'none';
-  }
-}
-
-function updateDots(idx) {
-  document.querySelectorAll('.carriage-dot').forEach((d, i) => {
-    d.classList.remove('active', 'visited');
-    if (i === idx) d.classList.add('active');
-    if (i < idx) d.classList.add('visited');
-  });
-}
-
-// ==================== 名字输入 ====================
-nameInput.addEventListener('input', () => {
-  btnPrint.disabled = nameInput.value.trim().length === 0;
-});
-
-btnPrint.addEventListener('click', () => {
-  state.playerName = nameInput.value.trim();
-  document.getElementById('ticketName').textContent = state.playerName;
-  showScreen('screen-ticket');
-});
-
-// ==================== 撕角动画 ====================
-document.getElementById('btn-board').addEventListener('click', () => {
-  playTrainSound();
-  const overlay = document.getElementById('cutOverlay');
-  const cutTicket = document.getElementById('cutTicket');
-  const tornCorner = document.getElementById('tornCorner');
-  const tornEdge = document.getElementById('tornEdge');
-  const cutText = document.getElementById('cutText');
-
-  document.getElementById('cutTicketName').textContent = state.playerName;
-
-  overlay.classList.add('active');
-  cutText.classList.add('show');
-  cutText.textContent = '正 在 撕 下 票 角';
-
-  setTimeout(() => {
-    cutTicket.classList.add('float-up');
-  }, 200);
-
-  setTimeout(() => {
-    tornCorner.classList.add('active');
-    setTimeout(() => {
-      tornCorner.classList.add('fly');
-    }, 200);
-  }, 1200);
-
-  setTimeout(() => {
-    cutTicket.classList.add('torn');
-    tornEdge.classList.add('show');
-    cutText.textContent = '票 角 已 撕 下';
-  }, 1600);
-
-  setTimeout(() => {
-    overlay.classList.remove('active');
-    document.getElementById('welcomeText').classList.add('show');
-  }, 3000);
-
-  setTimeout(() => {
-    document.getElementById('welcomeText').classList.remove('show');
-    state.boarded = true;
-    showScreen('screen-carriage');
-    setTimeout(() => {
-      cutTicket.classList.remove('float-up', 'torn');
-      tornCorner.classList.remove('active', 'fly');
-      tornEdge.classList.remove('show');
-      cutText.classList.remove('show');
-    }, 500);
-  }, 5200);
-});
-
-// ==================== 选项处理 ====================
-document.querySelectorAll('.choice-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const q = this.dataset.q;
-    const answer = this.dataset.answer;
-    const screenId = this.closest('.screen').id;
-
-    this.parentElement.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-    this.classList.add('selected');
-
-    if (screenId.includes('p1')) {
-      if (q === '1') state.p1Answers[0] = answer;
-      else state.p1Answers[1] = answer;
-    } else if (screenId.includes('p2')) {
-      if (q === '1') state.p2Answers[0] = answer;
-      else state.p2Answers[1] = answer;
-    } else if (screenId.includes('p3')) {
-      if (q === '1') state.p3Answers[0] = answer;
-      else state.p3Answers[1] = answer;
-    }
-
-    setTimeout(() => {
-      if (screenId === 'screen-p1-q1') showScreen('screen-p1-q2');
-      else if (screenId === 'screen-p1-q2') showP1Token();
-      else if (screenId === 'screen-p2-q1') showScreen('screen-p2-q2');
-      else if (screenId === 'screen-p2-q2') showP2Token();
-      else if (screenId === 'screen-p3-q1') showScreen('screen-p3-q2');
-      else if (screenId === 'screen-p3-q2') showP3Token();
-    }, 600);
-  });
-});
-
-// ==================== 信物展示 ====================
-function showP1Token() {
-  const ans1 = state.p1Answers[0] || '值得';
-  const ans2 = state.p1Answers[1] || '愿意';
-  let desc = '';
-  if (ans1 === '值得' && ans2 === '愿意') desc = '琥珀听完你的回答，笑了一下。琥珀说："你和我一样傻。" 然后琥珀把那条褪色的围巾放在你手里。';
-  else if (ans1 === '值得' && ans2 === '不愿意') desc = '琥珀听完你的回答，沉默了很久。琥珀说："你比我清醒。" 然后琥珀把那条褪色的围巾放在你手里。';
-  else if (ans1 === '不值得' && ans2 === '愿意') desc = '琥珀听完你的回答，看着你。琥珀说："你明明知道不值得，却还是愿意。" 然后琥珀把那条褪色的围巾放在你手里。';
-  else desc = '琥珀听完你的回答，把围巾收回去了一半。琥珀说："也许你是对的。" 然后琥珀把那条褪色的围巾放在你手里。';
-  document.getElementById('p1-token-desc').textContent = desc;
-  state.storiesHeard.add('p1');
-  showScreen('screen-p1-token');
-}
-
-function showP2Token() {
-  const ans1 = state.p2Answers[0] || '要';
-  const ans2 = state.p2Answers[1] || '值得';
-  let desc = '';
-  if (ans1 === '要' && ans2 === '值得') desc = '琥珀听完你的回答，把书合上。琥珀说："你和我一样，相信真心不会白费。" 然后琥珀从书里抽出一张泛黄的纸片。';
-  else if (ans1 === '要' && ans2 === '不值得') desc = '琥珀听完你的回答，摇了摇头。琥珀说："明明知道不值得，却还是要开始。" 然后琥珀从书里抽出一张泛黄的纸片。';
-  else if (ans1 === '不要' && ans2 === '值得') desc = '琥珀听完你的回答，看着你。琥珀说："你比我勇敢，也比我清醒。" 然后琥珀从书里抽出一张泛黄的纸片。';
-  else desc = '琥珀听完你的回答，把书抱得更紧了。琥珀说："也许你是对的。" 然后琥珀从书里抽出一张泛黄的纸片。';
-  document.getElementById('p2-token-desc').textContent = desc;
-  state.storiesHeard.add('p2');
-  showScreen('screen-p2-token');
-}
-
-function showP3Token() {
-  const ans1 = state.p3Answers[0] || '深情';
-  const ans2 = state.p3Answers[1] || '愿意';
-  let desc = '';
-  if (ans1 === '深情' && ans2 === '愿意') desc = '琥珀听完你的回答，把耳机递给你。琥珀说："你和我一样，愿意记住。" 然后琥珀把那只旧耳机放在你手心里。';
-  else if (ans1 === '深情' && ans2 === '不愿意') desc = '琥珀听完你的回答，沉默了很久。琥珀说："你比我勇敢，敢说不要。" 然后琥珀把那只旧耳机放在你手心里。';
-  else if (ans1 === '执念' && ans2 === '愿意') desc = '琥珀听完你的回答，笑了一下。琥珀说："执念也好，深情也好，都是放不下。" 然后琥珀把那只旧耳机放在你手心里。';
-  else desc = '琥珀听完你的回答，把耳机收回去了一边。琥珀说："也许你是对的。" 然后琥珀把那只旧耳机放在你手心里。';
-  document.getElementById('p3-token-desc').textContent = desc;
-  state.storiesHeard.add('p3');
-  showScreen('screen-p3-token');
-}
-
-// ==================== 收下/拒绝信物（任意支线完成即进入终点站） ====================
-document.getElementById('btn-p1-accept').addEventListener('click', () => {
-  state.tokens.p1 = true;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-document.getElementById('btn-p1-refuse').addEventListener('click', () => {
-  state.tokens.p1 = false;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-
-document.getElementById('btn-p2-accept').addEventListener('click', () => {
-  state.tokens.p2 = true;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-document.getElementById('btn-p2-refuse').addEventListener('click', () => {
-  state.tokens.p2 = false;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-
-document.getElementById('btn-p3-accept').addEventListener('click', () => {
-  state.tokens.p3 = true;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-document.getElementById('btn-p3-refuse').addEventListener('click', () => {
-  state.tokens.p3 = false;
-  setTimeout(() => showScreen('screen-farewell'), 600);
-});
-
-// ==================== 票根查看与跳过 ====================
-document.getElementById('btn-p1-view').addEventListener('click', () => showScreen('screen-p1-ticket'));
-document.getElementById('btn-p1-skip').addEventListener('click', () => showScreen('screen-p1-q1'));
-document.getElementById('btn-p1-to-q').addEventListener('click', () => showScreen('screen-p1-q1'));
-document.getElementById('peek-p1').addEventListener('click', () => showScreen('screen-p1-ticket'));
-
-document.getElementById('btn-p2-view').addEventListener('click', () => showScreen('screen-p2-ticket'));
-document.getElementById('btn-p2-skip').addEventListener('click', () => showScreen('screen-p2-q1'));
-document.getElementById('btn-p2-to-q').addEventListener('click', () => showScreen('screen-p2-q1'));
-document.getElementById('peek-p2').addEventListener('click', () => showScreen('screen-p2-ticket'));
-
-document.getElementById('btn-p3-view').addEventListener('click', () => showScreen('screen-p3-ticket'));
-document.getElementById('btn-p3-skip').addEventListener('click', () => showScreen('screen-p3-q1'));
-document.getElementById('btn-p3-to-q').addEventListener('click', () => showScreen('screen-p3-q1'));
-document.getElementById('peek-p3').addEventListener('click', () => showScreen('screen-p3-ticket'));
-
-// ==================== 列车临近终点 ====================
-document.getElementById('btn-farewell-next').addEventListener('click', () => {
-  showScreen('screen-relic');
-});
-
-// ==================== 拾起遗留物品（必须两件都选） ====================
-document.getElementById('relic-1').addEventListener('click', function() {
-  this.classList.toggle('picked');
-  state.relics.r1 = this.classList.contains('picked');
-  updateRelicConfirm();
-});
-
-document.getElementById('relic-2').addEventListener('click', function() {
-  this.classList.toggle('picked');
-  state.relics.r2 = this.classList.contains('picked');
-  updateRelicConfirm();
-});
-
-function updateRelicConfirm() {
-  const btn = document.getElementById('btn-relic-confirm');
-  const hint = document.getElementById('relicHint');
-  const bothPicked = state.relics.r1 && state.relics.r2;
-  btn.disabled = !bothPicked;
-  if (bothPicked) {
-    hint.textContent = '两件都已拾起';
-  } else {
-    hint.textContent = '两件都需要拾起';
-  }
-}
-
-document.getElementById('btn-relic-confirm').addEventListener('click', () => {
-  showScreen('screen-token-choice');
-  updateTokenChoice();
-  switchTokenPage(1);
-});
-
-// ==================== 信物总和页分页 ====================
-function switchTokenPage(page) {
-  state.tokenPage = page;
-  const page1 = document.getElementById('tokenPage1');
-  const page2 = document.getElementById('tokenPage2');
-  const btn1 = document.getElementById('page-btn-1');
-  const btn2 = document.getElementById('page-btn-2');
-
-  if (page === 1) {
-    page1.style.display = 'flex';
-    page2.style.display = 'none';
-    btn1.classList.add('active');
-    btn2.classList.remove('active');
-  } else {
-    page1.style.display = 'none';
-    page2.style.display = 'flex';
-    btn1.classList.remove('active');
-    btn2.classList.add('active');
-  }
-}
-
-document.getElementById('page-btn-1').addEventListener('click', () => switchTokenPage(1));
-document.getElementById('page-btn-2').addEventListener('click', () => switchTokenPage(2));
-
-// ==================== 信物选择 ====================
-function updateTokenChoice() {
-  const choiceP1 = document.getElementById('choice-p1');
-  const choiceP2 = document.getElementById('choice-p2');
-  const choiceP3 = document.getElementById('choice-p3');
-  const choiceR1 = document.getElementById('choice-relic1');
-  const choiceR2 = document.getElementById('choice-relic2');
-
-  choiceP1.classList.toggle('disabled', !state.tokens.p1);
-  choiceP2.classList.toggle('disabled', !state.tokens.p2);
-  choiceP3.classList.toggle('disabled', !state.tokens.p3);
-  choiceR1.classList.toggle('disabled', !state.relics.r1);
-  choiceR2.classList.toggle('disabled', !state.relics.r2);
-}
-
-document.getElementById('choice-p1').addEventListener('click', () => {
-  if (state.tokens.p1) showScreen('screen-link-scarf');
-});
-document.getElementById('choice-p2').addEventListener('click', () => {
-  if (state.tokens.p2) showScreen('screen-link-paper');
-});
-document.getElementById('choice-p3').addEventListener('click', () => {
-  if (state.tokens.p3) showScreen('screen-link-earphone');
-});
-document.getElementById('choice-relic1').addEventListener('click', () => {
-  if (state.relics.r1) alert('【一面旧镜 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
-});
-document.getElementById('choice-relic2').addEventListener('click', () => {
-  if (state.relics.r2) alert('【一把小钥匙 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
-});
-
-// ==================== 信物链接返回 ====================
-document.getElementById('btn-link-scarf-back').addEventListener('click', () => showScreen('screen-token-choice'));
-document.getElementById('btn-link-paper-back').addEventListener('click', () => showScreen('screen-token-choice'));
-document.getElementById('btn-link-earphone-back').addEventListener('click', () => showScreen('screen-token-choice'));
-
-// ==================== 信物链接进入（弹窗提示，待开发） ====================
-document.getElementById('btn-link-scarf-go').addEventListener('click', () => {
-  alert('【褪色的围巾 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
-});
-document.getElementById('btn-link-paper-go').addEventListener('click', () => {
-  alert('【泛黄的纸片 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
-});
-document.getElementById('btn-link-earphone-go').addEventListener('click', () => {
-  alert('【一只旧耳机 · 新链接】\n\n这里将跳转到琥珀的故事续篇。\n（待开发）');
-});
-
-// ==================== 重置游戏 ====================
-function resetGame() {
-  state.storiesHeard.clear();
-  state.boarded = false;
-  state.tokens = { p1: false, p2: false, p3: false };
-  state.relics = { r1: false, r2: false };
-  state.p1Answers = [];
-  state.p2Answers = [];
-  state.p3Answers = [];
-  state.playerName = '';
-  state.tokenPage = 1;
-  nameInput.value = '';
-  btnPrint.disabled = true;
-  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('relic-1').classList.remove('picked');
-  document.getElementById('relic-2').classList.remove('picked');
-  updateRelicConfirm();
-  switchTokenPage(1);
-  showScreen('screen-start');
-}
-
-document.getElementById('btn-restart1').addEventListener('click', resetGame);
-
-// ==================== 按钮事件 ====================
-document.getElementById('btn-explore').addEventListener('click', () => showScreen('screen-choose'));
-
-document.getElementById('btn-p1').addEventListener('click', () => showScreen('screen-p1-intro'));
-document.getElementById('btn-p2').addEventListener('click', () => showScreen('screen-p2-intro'));
-document.getElementById('btn-p3').addEventListener('click', () => showScreen('screen-p3-intro'));
-
-// ==================== 飘雪 ====================
-(function createFloatSnow() {
-  const symbols = ['❄', '❅', '❆', '·', '•'];
-  for (let i = 0; i < 16; i++) {
-    const f = document.createElement('span');
-    f.className = 'float-snowflake';
-    f.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-    f.style.left = Math.random() * 100 + '%';
-    f.style.animationDuration = (Math.random() * 12 + 10) + 's';
-    f.style.animationDelay = (Math.random() * 20) + 's';
-    f.style.fontSize = (Math.random() * 0.8 + 0.6) + 'rem';
-    f.style.opacity = (Math.random() * 0.15 + 0.06);
-    document.body.appendChild(f);
-  }
-})();
-
-// ==================== 雪花画布 ====================
-(function initSnow() {
-  const canvas = document.getElementById('snow-canvas');
-  const ctx = canvas.getContext('2d');
-  let w, h;
-  let flakes = [];
-
-  function initFlakes() {
-    const area = w * h;
-    let count = Math.floor(area / 14000);
-    count = Math.min(220, Math.max(70, count));
-    flakes = [];
-    for (let i = 0; i < count; i++) {
-      flakes.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 2.6 + 0.6,
-        d: Math.random() * 0.9 + 0.3,
-        o: Math.random() * 0.6 + 0.3,
-        wind: Math.random() * 1.3 - 0.5,
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-  }
-
-  function resize() {
-    w = window.innerWidth;
-    h = window.innerHeight;
-    canvas.width = w;
-    canvas.height = h;
-    initFlakes();
-  }
-
-  function draw(f) {
-    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2.2);
-    g.addColorStop(0, `rgba(240,250,255,${f.o})`);
-    g.addColorStop(0.5, `rgba(200,230,255,${f.o * 0.6})`);
-    g.addColorStop(1, 'rgba(150,190,240,0)');
-    ctx.beginPath();
-    ctx.fillStyle = g;
-    ctx.arc(f.x, f.y, f.r * 1.8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255,255,255,${f.o * 0.9})`;
-    ctx.arc(f.x, f.y, f.r * 0.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  function update() {
-    for (let f of flakes) {
-      f.y += f.d * (f.r * 0.85 + 0.6) * 0.68;
-      f.x += f.wind * 0.5 + Math.sin(f.phase) * 0.14;
-      f.phase += 0.018;
-      if (f.y > h + 15) {
-        f.y = -15;
-        f.x = Math.random() * w;
-        f.o = Math.random() * 0.6 + 0.3;
-        f.wind = Math.random() * 1.3 - 0.5;
-      }
-      if (f.x > w + 15) f.x = -15;
-      if (f.x < -15) f.x = w + 15;
-    }
-  }
-
-  function render() {
-    ctx.clearRect(0, 0, w, h);
-    for (let f of flakes) draw(f);
-    update();
-    requestAnimationFrame(render);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  render();
-})();
-
-// ==================== 初始化 ====================
-showScreen('screen-start');
+  <script data-web-initial-theme="">(()=>{(function(){let e={theme:"light",followSystem:!1};try{const l=localStorage.getItem("agent-ui-theme"),a=l?JSON.parse(l):null;if(a&&typeof a=="object"&&!Array.isArray(a)){const t=a,i=t.theme==="light"||t.theme==="dark"||t.theme==="auto",m=t.followSystem===void 0||typeof t.followSystem=="boolean";if(i&&m){const n=t.followSystem===!0||t.theme==="auto";e={theme:(n?window.matchMedia("(prefers-color-scheme: dark)").matches:t.theme==="dark")?"dark":"light",followSystem:n}}}}catch{}window.__agentsWebInitialTheme=e;const o=document.documentElement;o.setAttribute("data-theme",e.theme),o.classList.add(e.theme,`cb-${e.theme}`,`vscode-${e.theme}`),o.style.colorScheme=e.theme,o.style.backgroundColor=e.theme==="light"?"#ffffff":"#181818",window.addEventListener("app-ready",()=>{o.style.removeProperty("background-color")},{once:!0})})();})();
 </script>
+
+  <script>(()=>{var _=Object.defineProperty;var T=(c,o,d)=>o in c?_(c,o,{enumerable:!0,configurable:!0,writable:!0,value:d}):c[o]=d;var h=(c,o,d)=>T(c,typeof o!="symbol"?o+"":o,d);const w="/console/accounts";if(typeof window<"u"&&!window.__accountsSingleFlightInstalled){window.__accountsSingleFlightInstalled=!0;const c=window.fetch.bind(window);let o=null;const d=n=>{try{const r=new URL(n,window.location.origin);return r.origin===window.location.origin&&r.pathname===w}catch{return!1}},g=async(n,r)=>{const t=await c(n,{method:"GET",credentials:"include",headers:{Accept:"application/json",...r||{}}}),e=await t.text(),i=[];return t.headers.forEach((l,a)=>{const u=a.toLowerCase();u==="content-encoding"||u==="content-length"||i.push([a,l])}),{status:t.status,statusText:t.statusText,bodyText:e,headers:i,responseURL:t.url||n}},p=(n,r)=>o||(o=g(n,r).finally(()=>{o=null}),o),y=n=>{const r=n.status===204||n.status===205||n.status===304,t=new Response(r?null:n.bodyText,{status:n.status,statusText:n.statusText,headers:n.headers});try{Object.defineProperty(t,"url",{value:n.responseURL})}catch{}return t};window.fetch=function(r,t){try{const e=(t?.method||(r instanceof Request?r.method:"GET")||"GET").toUpperCase(),i=r instanceof Request?r.url:String(r);if(e==="GET"&&d(i))return p(i).then(y)}catch{}return c(r,t)};const R=window.XMLHttpRequest;class b extends R{constructor(){super(...arguments);h(this,"_sfMethod","");h(this,"_sfUrl","");h(this,"_sfHeaders",{});h(this,"_sfIntercept",!1);h(this,"_sfAborted",!1)}open(t,e,...i){return this._sfMethod=String(t||"").toUpperCase(),this._sfUrl=typeof e=="string"?e:e.toString(),this._sfHeaders={},this._sfAborted=!1,this._sfIntercept=this._sfMethod==="GET"&&d(this._sfUrl),super.open(t,e,...i)}setRequestHeader(t,e){this._sfIntercept&&(this._sfHeaders[t]=e);try{return super.setRequestHeader(t,e)}catch{}}abort(){if(this._sfIntercept&&!this._sfAborted){this._sfAborted=!0;const t=e=>{try{this.dispatchEvent(new Event(e))}catch{}};t("abort"),t("loadend");return}return super.abort()}send(t){if(!this._sfIntercept)return super.send(t);p(this._sfUrl,this._sfHeaders).then(e=>{this._sfAborted||this._sfDeliver(e)}).catch(()=>{this._sfAborted||this._sfDeliverError()})}_sfDeliver(t){const e={};t.headers.forEach(([s,f])=>{e[s.toLowerCase()]=f});const i=t.headers.map(([s,f])=>`${s}: ${f}`).join(`\r
+`)+`\r
+`,l=()=>{const s=this.responseType;if(s===""||s==="text")return t.bodyText;if(s==="json")try{return JSON.parse(t.bodyText)}catch{return null}return s==="arraybuffer"?new TextEncoder().encode(t.bodyText).buffer:s==="blob"?new Blob([t.bodyText]):t.bodyText},a=(s,f)=>{try{Object.defineProperty(this,s,{configurable:!0,get:f})}catch{}};a("readyState",()=>4),a("status",()=>t.status),a("statusText",()=>t.statusText),a("responseURL",()=>t.responseURL),a("responseText",()=>{const s=this.responseType;return s===""||s==="text"?t.bodyText:""}),a("response",l),this.getAllResponseHeaders=()=>i,this.getResponseHeader=s=>e[s.toLowerCase()]??null;const u=s=>{try{this.dispatchEvent(new Event(s))}catch{}};u("readystatechange"),u("load"),u("loadend")}_sfDeliverError(){try{Object.defineProperty(this,"readyState",{configurable:!0,get:()=>4}),Object.defineProperty(this,"status",{configurable:!0,get:()=>0})}catch{}const t=e=>{try{this.dispatchEvent(new Event(e))}catch{}};t("readystatechange"),t("error"),t("loadend")}}window.XMLHttpRequest=b}})();
+</script>
+
+  <meta charset="UTF-8" />
+    <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/mac-dmg-prompt-services-B7toig0Q.css">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/mac-dmg-prompt-services-DF8kpAOT.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-BMIev-Fy.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-CFgfBE6F.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-DelvjIOg.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-Djg74Fmu.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-VBMQN3vU.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-XlZGEOI_.js">
+  <link rel="modulepreload" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/services-Zy94zUHO.js">
+  <link rel="preload" as="image" media="(prefers-color-scheme: light)" href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/claw-welcome-light-DIM0nkzP.svg">
+<meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!--
+    title 留中性兜底文案，不跟 og:title 同步成"邀请你加入协作"——
+    因为 <title> 会出现在所有访问 /agents/* 路径的浏览器 Tab 上（React app 启动前的几百毫秒），
+    若改成邀请语义会让普通浏览场景（首页/项目/待办）的 Tab 短暂出现邀请文案，语义错配。
+    og:title 仅外部抓取器读取（企微/微信/Slack 等 IM 卡片），改成邀请文案才是 #49388 的目标。
+  -->
+  <title>来自 WorkBuddy 项目的分享</title>
+  <link rel="icon" href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/logo.svg" />
+
+  <!--
+    社交平台分享卡片（Open Graph / Twitter Card）静态 meta。
+
+    场景：用户在分享落地页（/agents/share/:code、/agents/tasks/share/:code 等）
+    点击"复制链接"后粘贴到微信、QQ、企业微信、Telegram、Slack 等聊天里，
+    IM 客户端会请求该 URL 并按 Open Graph 协议从初始 HTML 抓取 meta，
+    渲染出 [图标 + 主标题 + 分标题] 的卡片预览。
+
+    重要约束：
+    1. 微信 / 企微等 IM 的爬虫**不执行 JavaScript**，只读静态 HTML。
+       因此 og:* 必须直接出现在 index.html 里，不能通过 React 运行时注入。
+    2. 当前为纯静态托管（无 SSR），无法按 :code 注入"具体分享名"作为
+       og:title——这部分留待后续 SSR 方案。
+    3. og:image 必须是 PNG/JPG（IM 普遍不解析 SVG），且推荐 ≥ 300×300。
+       当前指向 /assets/share-logo.png，由产品同学补齐 PNG 资源。
+    4. og:image 必须是 **https 绝对 URL**（OG 协议硬性要求，微信/企微/QQ
+       的爬虫遇到相对路径会直接忽略该字段）。这里使用 //static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883 占位符，
+       由 ci/html.sh 在部署期替换成对应环境的 CDN 绝对地址，避免绑定某一次构建
+       的 COS hash 目录。
+    5. 微信抓取有强缓存。修改图片资源后若想立刻看到效果，
+       要么换文件名，要么在 URL 末尾加 ?v=N 绕缓存。
+
+    当前静态分享卡片兜底方案：
+    - 主标题：og:title = "邀请你加入协作"（兜底文案，命中需求文档"兜底三：抓取超时/失败"）。
+      说明：纯静态 HTML 无法按 :token 动态注入项目/任务/待办的真实标题，
+      也无法注入"{昵称} 邀请你{动词}{类型}"这类动态副文案——这部分需要 SSR
+      或边缘函数 + URL 元数据编码方案，本次范围外。
+    - 分标题：og:description = "点击查看团队共享的内容 · WorkBuddy 项目"（设计稿兜底文案）。
+    - 图标：og:image 指向部署期注入的公开 PNG 资源。
+
+    注意：以下 meta 对所有页面生效（包括非分享路径）。这是有意为之——
+    主应用首页 / Agent 列表页等被分享时，同样能展示 WorkBuddy 品牌卡片，
+    避免"分享出去就是裸 URL"的体验。
+  -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkBuddy" />
+  <meta property="og:title" content="邀请你加入协作" />
+  <meta property="og:description" content="点击查看团队共享的内容 · WorkBuddy 项目" />
+  <meta property="og:image"
+    content="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/share-logo.png?v=2" />
+  <meta property="og:image:secure_url"
+    content="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/share-logo.png?v=2" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="560" />
+  <meta property="og:image:height" content="560" />
+  <!-- Twitter Card：Slack / 部分 IM 优先读 Twitter 字段 -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="邀请你加入协作" />
+  <meta name="twitter:description" content="点击查看团队共享的内容 · WorkBuddy 项目" />
+  <meta name="twitter:image"
+    content="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/share-logo.png?v=2" />
+
+  <script>
+    window.RUN_ENV = 'prod';
+    window.IS_INTERNATIONAL_EDITION = '__IS_INTERNATIONAL_EDITION__';
+    window.PRODUCT_FEATURES = '{"billing":"true"}';
+    window.__toCdnUrl = (url) => {
+      const BASE_URL = '//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883';
+      return (/__.*?__$/.test(BASE_URL) ? '' : BASE_URL) + '/' + url;
+    };
+
+    // 检查是否需要显示骨架屏
+    (function () {
+      const host = location.host;
+      const pathname = location.pathname;
+      const searchParams = new URLSearchParams(location.search);
+      const hasSessionId = searchParams.has('sessionId');
+
+      // 只在 vscode-app 环境或 /agents、/app 路径下显示骨架屏
+      // 支持格式: /agents、/agents/、/agents/task/2018542616813531136
+      //         /app、/app/、/app/task/2018542616813531136
+      const AGENTS_BASE_NAMES = ['/agents', '/app'];
+      const pathnameNoTrailingSlash = pathname.replace(/\/$/, '');
+      const isAgentsTaskPath = AGENTS_BASE_NAMES.some(function (bn) {
+        return new RegExp('^' + bn + '/task/\\d+$').test(pathname);
+      });
+      const shouldShowSkeleton =
+        AGENTS_BASE_NAMES.indexOf(pathname) !== -1 ||
+        AGENTS_BASE_NAMES.indexOf(pathnameNoTrailingSlash) !== -1 ||
+        isAgentsTaskPath;
+      window.__shouldShowSkeleton = shouldShowSkeleton;
+      window.__hasSessionId = hasSessionId;
+      // 默认登录状态为未知（null），等待接口返回
+      window.__isLoggedIn = null;
+
+      // 默认 document.title 初始化
+      // 分享落地页（/agents/share/、/agents/tasks/share/、/app/share/ 等，
+      // 路径中含 "/share/"）由 React 端的 usePreviewDocumentTitle 在拿到 shareDetail
+      // 后设置为真实文件名/任务名。如果在 HTML 里硬编码默认 title，会出现
+      // "先显示 Tencent Cloud CodeBuddy → 闪一下变成文件名" 的跳变；
+      // 因此分享页保持 <title> 为空，由 React 接管；非分享页则立即填上默认标题，
+      // 避免浏览器 tab 出现空白。
+      var DEFAULT_DOC_TITLE = 'WorkBuddy';
+      // 严格匹配两类分享落地页路径前缀，避免命中未来可能出现的
+      // 路径中"恰好含 /share/"但并非分享落地页的路由（例如 /agents/settings/share/...），
+      // 那种路由不会挂载 usePreviewDocumentTitle，title 留空会导致 tab 永远空白。
+      //
+      // 覆盖 web 的两套 basename：/agents（codebuddy 域）和 /app（workbuddy 域）。
+      // 两套 basename 由 main.tsx 在运行时按 pathname 选择（见 detectBasenameFromPathname），
+      // 对应 React Router 的 share / tasks/share 路由。
+      var SHARE_PATH_PREFIXES = [
+        '/agents/share/',
+        '/agents/tasks/share/',
+        '/app/share/',
+        '/app/tasks/share/',
+      ];
+      var isSharePreviewPath = SHARE_PATH_PREFIXES.some(function (p) {
+        return pathname.indexOf(p) === 0;
+      });
+      if (!isSharePreviewPath) {
+        try {
+          document.title = DEFAULT_DOC_TITLE;
+        } catch (e) {
+          // 极端情况下（如某些受限环境）写入失败时静默忽略，不阻断后续流程。
+        }
+      } else {
+        // 分享落地页强制使用 WorkBuddy favicon，避免与页面内绿色 logo 不一致。
+        // 主路径按现有 href 替换文件名（保留 querystring 与 CDN 前缀）；
+        // 兜底分支基于 currentHref 派生目录前缀，避免未来 favicon 改成 .ico 等
+        // 格式时塌缩成同域裸路径 /assets/workbuddy.svg（CDN 模式下会丢前缀）。
+        try {
+          var iconLink = document.querySelector('link[rel="icon"]');
+          var currentHref = iconLink && iconLink.getAttribute('href');
+          var FAVICON_PATTERN = /[^/]+\.svg(\?.*)?$/;
+          if (iconLink && currentHref && FAVICON_PATTERN.test(currentHref)) {
+            iconLink.setAttribute(
+              'href',
+              currentHref.replace(FAVICON_PATTERN, 'workbuddy.svg$1'),
+            );
+          } else if (iconLink && currentHref) {
+            // 派生 currentHref 的目录前缀（去掉末尾文件名 + 可选 querystring），
+            // 拼上 workbuddy.svg。这样 CDN 前缀、子路径都能保留。
+            var dirPrefix = currentHref.replace(/[^/]+(\?.*)?$/, '');
+            iconLink.setAttribute('href', dirPrefix + 'workbuddy.svg');
+          }
+        } catch (e) {
+          // favicon 切换失败不影响主流程
+        }
+      }
+
+      // 如果不需要显示骨架屏，直接返回
+      if (!shouldShowSkeleton) {
+        return;
+      }
+
+      // 与 ThemeManager 共用 head 内联脚本的快照，避免骨架深色、实际页面浅色的交接闪烁。
+      window.__skeletonTheme = window.__agentsWebInitialTheme?.theme === 'dark' ? 'dark' : 'light';
+    })();
+  </script>
+
+  <!-- 骨架屏样式 - 防止白屏 -->
+  <style>
+    /* ========== 主题变量 ========== */
+    :root {
+      /* 暗色主题（默认） */
+      --skeleton-bg: #181818;
+      --skeleton-sidebar-bg: #141414;
+      --skeleton-border: rgba(255, 255, 255, 0.07);
+      --skeleton-shimmer-from: rgba(255, 255, 255, 0.04);
+      --skeleton-shimmer-to: rgba(255, 255, 255, 0.08);
+      --skeleton-card-bg: rgba(255, 255, 255, 0.04);
+      --skeleton-card-border: rgba(255, 255, 255, 0.06);
+      --skeleton-input-bg: rgba(255, 255, 255, 0.03);
+      --skeleton-input-border: rgba(255, 255, 255, 0.1);
+      --skeleton-btn-bg: rgba(255, 255, 255, 0.08);
+      --skeleton-search-bg: rgba(255, 255, 255, 0.05);
+      --skeleton-text-color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* 亮色主题 - 与 default-light.scss 保持一致 */
+    .app-skeleton.light {
+      --skeleton-bg: #ffffff;
+      --skeleton-sidebar-bg: #f8f8f8;
+      --skeleton-border: #e5e5e5;
+      --skeleton-shimmer-from: rgba(0, 0, 0, 0.03);
+      --skeleton-shimmer-to: rgba(0, 0, 0, 0.08);
+      --skeleton-card-bg: rgba(0, 0, 0, 0.02);
+      --skeleton-card-border: rgba(0, 0, 0, 0.06);
+      --skeleton-input-bg: #ffffff;
+      --skeleton-input-border: #cecece;
+      --skeleton-btn-bg: rgba(0, 0, 0, 0.05);
+      --skeleton-search-bg: #ffffff;
+      --skeleton-text-color: #3b3b3b;
+    }
+
+    /* 骨架屏动画 */
+    @keyframes skeleton-shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    /* 消失动画 - 平滑淡出，给真实UI足够的渲染时间 */
+    @keyframes skeleton-fade-out {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* 骨架屏容器 - 默认隐藏 */
+    .app-skeleton {
+      position: fixed;
+      inset: 0;
+      display: none;
+      /* 默认隐藏，由 JS 控制显示 */
+      background: var(--skeleton-bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 9999;
+      opacity: 1;
+      /* 使用 will-change 优化动画性能 */
+      will-change: opacity;
+    }
+
+    /* 显示骨架屏 */
+    .app-skeleton.show {
+      display: flex;
+    }
+
+    .app-skeleton.hidden {
+      animation: skeleton-fade-out 0.25s ease-out forwards;
+      pointer-events: none;
+    }
+
+    /* 骨架条纹效果 */
+    .skeleton-item {
+      background: linear-gradient(90deg, var(--skeleton-shimmer-from) 25%, var(--skeleton-shimmer-to) 50%, var(--skeleton-shimmer-from) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    /* ========== 侧边栏骨架 ========== */
+    .skeleton-sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--skeleton-sidebar-bg, var(--skeleton-bg));
+      border-right: 1px solid var(--skeleton-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .skeleton-sidebar-header {
+      padding: 0 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .skeleton-logo-wrapper {
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .skeleton-logo {
+      width: 120px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .skeleton-search-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .skeleton-search {
+      flex: 1;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--skeleton-search-bg);
+      border: 1px solid var(--skeleton-input-border);
+    }
+
+    .skeleton-filter-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid var(--skeleton-input-border);
+      background: transparent;
+    }
+
+    .skeleton-new-task-btn {
+      height: 32px;
+      border-radius: 6px;
+      background: var(--skeleton-btn-bg);
+    }
+
+    .skeleton-sidebar-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 10px;
+      overflow: hidden;
+    }
+
+    /* CollapsibleSection 骨架屏列表 - 与 collapsible-section-skeleton.module.scss 保持一致 */
+    .skeleton-section-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skeleton-section {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-section:last-child {
+      margin-bottom: 0;
+    }
+
+    /* CollapsibleSection header: padding 8px 0, gap 4px */
+    .skeleton-section-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    /* 标题在前 */
+    .skeleton-section-title {
+      width: 80px;
+      height: 14px;
+    }
+
+    /* Chevron icon: 12x12 */
+    .skeleton-section-chevron {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* 卡片列表容器 */
+    .skeleton-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* AgentCard: padding 12px 8px, gap 8px, border-radius 6px */
+    .skeleton-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 8px;
+      border-radius: 6px;
+    }
+
+    /* Card header row: min-height 20px, gap 6px */
+    .skeleton-card-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 20px;
+    }
+
+    /* Icon: 18x18 */
+    .skeleton-card-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Title: flex 1, height 14px, max-width 70% */
+    .skeleton-card-title {
+      flex: 1;
+      height: 14px;
+      max-width: 70%;
+    }
+
+    /* Time: width 24px, height 12px */
+    .skeleton-card-time {
+      width: 24px;
+      height: 12px;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    /* Status: width 60px, height 12px, margin-left 24px（与图标对齐） */
+    .skeleton-card-status {
+      width: 60px;
+      height: 12px;
+      margin-left: 24px;
+    }
+
+    /* ========== 主内容区骨架 ========== */
+    .skeleton-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--skeleton-bg);
+    }
+
+    .skeleton-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      max-width: 832px;
+      width: 100%;
+    }
+
+    /* 欢迎头部 - Logo + 标题 */
+    .skeleton-welcome-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .skeleton-welcome-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+    }
+
+    .skeleton-welcome-title {
+      width: 360px;
+      height: 38px;
+      border-radius: 6px;
+    }
+
+    /* 模式选择器骨架 - 两个卡片 */
+    .skeleton-mode-selector {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+      max-width: 640px;
+      height: 189px;
+    }
+
+    .skeleton-mode-card {
+      flex: 1;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0;
+      border-radius: 18px 18px 0 0;
+      background: var(--skeleton-card-bg);
+      border: 1px solid var(--skeleton-card-border);
+      border-bottom: none;
+    }
+
+    .skeleton-mode-card--active {
+      height: 189px;
+    }
+
+    .skeleton-mode-card--inactive {
+      height: 119px;
+    }
+
+    /* 模式卡片内部 - tag wrapper */
+    .skeleton-tag-wrapper {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 100%;
+      height: 99px;
+      padding-bottom: 0;
+    }
+
+    .skeleton-tag-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 280px;
+      height: 79px;
+      background: var(--skeleton-input-bg);
+      border-radius: 18px;
+    }
+
+    .skeleton-tag-btn {
+      width: 130px;
+      height: 29px;
+      border-radius: 14px;
+    }
+
+    .skeleton-tag-subtitle {
+      width: 80px;
+      height: 14px;
+    }
+
+    .skeleton-mode-desc {
+      width: 200px;
+      height: 13px;
+      margin-top: 16px;
+    }
+
+    /* 输入框区域骨架 */
+    .skeleton-input-area {
+      width: 100%;
+      max-width: 832px;
+    }
+
+    .skeleton-input-box {
+      width: 100%;
+      height: 140px;
+      border-radius: 16px;
+      background: var(--skeleton-input-bg);
+      border: 1px solid var(--skeleton-input-border);
+    }
+
+    /* 快捷操作骨架 */
+    .skeleton-quick-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .skeleton-quick-btn {
+      height: 32px;
+      border-radius: 16px;
+      background: var(--skeleton-search-bg);
+      border: 1px solid var(--skeleton-card-border);
+    }
+
+    /* ========== 消息列表骨架屏 ========== */
+    .skeleton-messages {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--skeleton-bg);
+      overflow: hidden;
+    }
+
+    /* 顶部栏 */
+    .skeleton-messages-header {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      border-bottom: 1px solid var(--skeleton-border);
+      flex-shrink: 0;
+    }
+
+    .skeleton-messages-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .skeleton-messages-title {
+      width: 180px;
+      height: 16px;
+    }
+
+    .skeleton-messages-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .skeleton-messages-action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+    }
+
+    /* 消息内容区域 - 居中容器 */
+    .skeleton-messages-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .skeleton-messages-scroll {
+      width: 100%;
+      max-width: 832px;
+      flex: 1;
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 消息对容器 */
+    .skeleton-message-pair {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 用户消息 - 右对齐气泡 */
+    .skeleton-user-message {
+      padding: 32px 16px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .skeleton-user-bubble {
+      border-radius: 6px 6px 0 6px;
+      min-width: 100px;
+      max-width: 70%;
+      height: 19px;
+    }
+
+    /* 助手消息 - 左对齐，头像+内容 */
+    .skeleton-assistant-message {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 助手头像行 */
+    .skeleton-avatar-container {
+      display: flex;
+      align-items: center;
+      padding-bottom: 12px;
+      gap: 10px;
+    }
+
+    .skeleton-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .skeleton-avatar-name {
+      width: 80px;
+      height: 12px;
+    }
+
+    /* 助手消息内容 */
+    .skeleton-assistant-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 16px;
+    }
+
+    .skeleton-text-long {
+      height: 13px;
+      width: 90%;
+    }
+
+    .skeleton-text-medium {
+      height: 13px;
+      width: 70%;
+    }
+
+    .skeleton-text-short {
+      height: 13px;
+      width: 45%;
+    }
+
+    /* 底部输入框区域 */
+    .skeleton-messages-input-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px 24px;
+      flex-shrink: 0;
+    }
+
+    .skeleton-messages-input {
+      width: 100%;
+      max-width: 832px;
+    }
+
+    .skeleton-messages-input-box {
+      width: 100%;
+      height: 100px;
+      border-radius: 12px;
+      background: var(--skeleton-input-bg);
+      border: 1px solid var(--skeleton-input-border);
+    }
+
+    /* ========== 空白主内容区（加载中状态） ========== */
+    .skeleton-main-empty {
+      flex: 1;
+      background: var(--skeleton-bg);
+    }
+
+    /* ========== 未登录状态 - Welcome Only 视图 ========== */
+    .skeleton-welcome-only {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: var(--skeleton-bg);
+    }
+
+    .skeleton-welcome-only.show {
+      display: flex;
+    }
+
+    /* 顶部导航栏骨架 */
+    .skeleton-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+    }
+
+    .skeleton-header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .skeleton-header-logo {
+      width: 140px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .skeleton-header-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .skeleton-header-nav-item {
+      width: 60px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .skeleton-header-login-btn {
+      width: 72px;
+      height: 36px;
+      border-radius: 18px;
+    }
+
+    /* 主内容区 - 居中的 welcome */
+    .skeleton-welcome-only-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* 加载中状态 - 只显示背景色，隐藏所有骨架屏内容 */
+    .app-skeleton.loading .skeleton-sidebar,
+    .app-skeleton.loading .skeleton-main-empty,
+    .app-skeleton.loading .skeleton-welcome-only {
+      display: none;
+    }
+
+    /* 未登录时隐藏侧边栏，显示 welcome-only */
+    .app-skeleton.not-logged-in .skeleton-sidebar {
+      display: none;
+    }
+
+    .app-skeleton.not-logged-in .skeleton-main-empty {
+      display: none;
+    }
+
+    .app-skeleton.not-logged-in .skeleton-welcome-only {
+      display: flex;
+    }
+
+    /* ========== 移动端适配（≤768px） ========== */
+    @media (max-width: 768px) {
+
+      /* 隐藏侧边栏骨架 */
+      .skeleton-sidebar {
+        display: none !important;
+      }
+
+      /* 骨架屏容器改为垂直布局 */
+      .app-skeleton.show {
+        flex-direction: column;
+      }
+
+      /* 已登录时：显示移动端导航栏骨架 + 全宽主区域 */
+      .app-skeleton.show:not(.loading):not(.not-logged-in) .skeleton-mobile-nav {
+        display: flex !important;
+      }
+
+      /* 主区域全宽 */
+      .skeleton-main-empty {
+        flex: 1;
+      }
+
+      /* 未登录时的 welcome-only 视图适配 */
+      .skeleton-welcome-title {
+        width: 240px;
+      }
+
+      .skeleton-mode-selector {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+        gap: 8px;
+      }
+
+      .skeleton-mode-card {
+        max-width: 100%;
+        width: 100%;
+        border-radius: 18px;
+        border-bottom: 1px solid var(--skeleton-card-border);
+      }
+
+      .skeleton-mode-card--active,
+      .skeleton-mode-card--inactive {
+        height: auto;
+        min-height: 100px;
+      }
+
+      .skeleton-header-nav {
+        display: none;
+      }
+    }
+
+    /* 移动端导航栏骨架 - 默认隐藏 */
+    .skeleton-mobile-nav {
+      display: none;
+      height: 48px;
+      min-height: 48px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      background: var(--skeleton-sidebar-bg);
+      flex-shrink: 0;
+    }
+
+    .skeleton-mobile-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .skeleton-mobile-nav-logo {
+      width: 120px;
+      height: 18px;
+      border-radius: 4px;
+    }
+  </style>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-react-BCFOnpZD.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-dompurify-DcSE9iEF.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-ui-shared-CyyM9DAU.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vite-preload-helper-PPVm8Dsz.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-hljs-DZ3UvLrs.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-katex-CmE3DlAf.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-markdown-V2BjiFGN.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-lodash-3t2I4DiS.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-parsers-B_LlBmFT.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/genie-chat-ui-BkFBoRck.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-zustand-CQwjgLPB.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/shared-account-http-DUBBMGAl.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/shared-i18n-WAHDte3M.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/genie-monitor-B15nGeYg.js"></script>
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/entry-shared-wJFeuNra.js"></script>
+  
+  
+  <script type="module" crossorigin src="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/main-BydZbC0-.js"></script>
+  <link rel="stylesheet" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/vendor-katex-DLVrwanO.css">
+  <link rel="stylesheet" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/genie-chat-ui-Bo2HcqLA.css">
+  
+  
+  <link rel="stylesheet" crossorigin href="//static.workbuddy.cn/web/agents/1d5d6243577782ea0f77e55b01cd60d6650d3883/assets/main-IQp6E2TL.css">
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- 骨架屏 - 独立于 React 根节点，通过 JS 控制淡出 -->
+  <div class="app-skeleton" id="app-skeleton">
+    <!-- 移动端导航栏骨架（仅移动端 ≤768px 显示） -->
+    <div class="skeleton-mobile-nav" style="display:none;">
+      <div class="skeleton-item skeleton-mobile-nav-btn"></div>
+      <div class="skeleton-item skeleton-mobile-nav-logo"></div>
+      <div class="skeleton-item skeleton-mobile-nav-btn"></div>
+    </div>
+
+    <!-- 已登录状态：侧边栏 + 空白主区域 -->
+    <!-- 侧边栏骨架 -->
+    <div class="skeleton-sidebar">
+      <div class="skeleton-sidebar-header">
+        <!-- Logo -->
+        <div class="skeleton-logo-wrapper">
+          <div class="skeleton-item skeleton-logo"></div>
+        </div>
+        <!-- 搜索框 + 筛选按钮 -->
+        <div class="skeleton-search-row">
+          <div class="skeleton-search"></div>
+          <div class="skeleton-item skeleton-filter-btn"></div>
+        </div>
+        <!-- 新建任务按钮 -->
+        <div class="skeleton-item skeleton-new-task-btn"></div>
+      </div>
+
+      <div class="skeleton-sidebar-content">
+        <div class="skeleton-section-list">
+          <!-- 分组 1 -->
+          <div class="skeleton-section">
+            <!-- 分组标题骨架：标题 + 箭头 -->
+            <div class="skeleton-section-header">
+              <div class="skeleton-item skeleton-section-title"></div>
+              <div class="skeleton-item skeleton-section-chevron"></div>
+            </div>
+            <!-- 卡片骨架 -->
+            <div class="skeleton-card-list">
+              <!-- 卡片 1 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+              <!-- 卡片 2 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+              <!-- 卡片 3 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+            </div>
+          </div>
+          <!-- 分组 2 -->
+          <div class="skeleton-section">
+            <!-- 分组标题骨架：标题 + 箭头 -->
+            <div class="skeleton-section-header">
+              <div class="skeleton-item skeleton-section-title"></div>
+              <div class="skeleton-item skeleton-section-chevron"></div>
+            </div>
+            <!-- 卡片骨架 -->
+            <div class="skeleton-card-list">
+              <!-- 卡片 1 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+              <!-- 卡片 2 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+              <!-- 卡片 3 -->
+              <div class="skeleton-card">
+                <div class="skeleton-card-header">
+                  <div class="skeleton-item skeleton-card-icon"></div>
+                  <div class="skeleton-item skeleton-card-title"></div>
+                  <div class="skeleton-item skeleton-card-time"></div>
+                </div>
+                <div class="skeleton-item skeleton-card-status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧空白区域 - 已登录时显示 -->
+    <div class="skeleton-main-empty" id="skeleton-main-empty"></div>
+
+    <!-- 未登录状态：全屏 Welcome Only 视图 -->
+    <div class="skeleton-welcome-only" id="skeleton-welcome-only">
+      <!-- 顶部导航栏骨架 -->
+      <header class="skeleton-header">
+        <div class="skeleton-header-content">
+          <!-- 左侧 Logo -->
+          <div class="skeleton-item skeleton-header-logo"></div>
+          <!-- 中间导航 -->
+          <nav class="skeleton-header-nav">
+            <div class="skeleton-item skeleton-header-nav-item"></div>
+            <div class="skeleton-item skeleton-header-nav-item" style="width: 50px;"></div>
+            <div class="skeleton-item skeleton-header-nav-item" style="width: 70px;"></div>
+            <div class="skeleton-item skeleton-header-nav-item" style="width: 55px;"></div>
+            <div class="skeleton-item skeleton-header-nav-item" style="width: 65px;"></div>
+          </nav>
+          <!-- 右侧登录按钮 -->
+          <div class="skeleton-item skeleton-header-login-btn"></div>
+        </div>
+      </header>
+
+      <!-- 主内容区 -->
+      <main class="skeleton-welcome-only-main">
+        <div class="skeleton-welcome">
+          <!-- 欢迎头部 -->
+          <div class="skeleton-welcome-header">
+            <div class="skeleton-item skeleton-welcome-logo"></div>
+            <div class="skeleton-item skeleton-welcome-title"></div>
+          </div>
+          <!-- 模式选择器 -->
+          <div class="skeleton-mode-selector">
+            <div class="skeleton-mode-card skeleton-mode-card--active">
+              <div class="skeleton-tag-wrapper">
+                <div class="skeleton-tag-inner">
+                  <div class="skeleton-item skeleton-tag-btn"></div>
+                  <div class="skeleton-item skeleton-tag-subtitle"></div>
+                </div>
+              </div>
+              <div class="skeleton-item skeleton-mode-desc"></div>
+            </div>
+            <div class="skeleton-mode-card skeleton-mode-card--inactive">
+              <div class="skeleton-tag-wrapper">
+                <div class="skeleton-tag-inner">
+                  <div class="skeleton-item skeleton-tag-btn"></div>
+                  <div class="skeleton-item skeleton-tag-subtitle"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 输入框 -->
+          <div class="skeleton-input-area">
+            <div class="skeleton-input-box"></div>
+            <div class="skeleton-quick-actions">
+              <div class="skeleton-item skeleton-quick-btn" style="width: 100px;"></div>
+              <div class="skeleton-item skeleton-quick-btn" style="width: 120px;"></div>
+              <div class="skeleton-item skeleton-quick-btn" style="width: 90px;"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 立即应用骨架屏主题和显示状态（同步脚本，确保在渲染前执行） -->
+  <script>
+    (function () {
+      const skeleton = document.getElementById('app-skeleton');
+      if (!skeleton) return;
+
+      // 检查是否需要显示骨架屏
+      if (window.__shouldShowSkeleton) {
+        skeleton.classList.add('show');
+        // 添加 loading 状态 - 请求期间只显示背景色
+        skeleton.classList.add('loading');
+        // 应用主题
+        if (window.__skeletonTheme === 'light') {
+          skeleton.classList.add('light');
+        }
+
+        // 调用 accounts 接口检查登录状态
+        checkLoginStatus();
+      }
+
+      // 检查登录状态
+      function checkLoginStatus() {
+        // 构建 API URL - 使用相对路径，让浏览器自动处理域名
+        const apiUrl = '/console/accounts';
+
+        fetch(apiUrl, {
+          method: 'GET',
+          credentials: 'include', // 携带 cookie
+          redirect: 'manual', // 不自动跟随重定向，302 表示未登录
+          headers: {
+            'Accept': 'application/json',
+          },
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              // 非 200 响应视为未登录
+              return null;
+            }
+            return response.json();
+          })
+          .then(function (data) {
+            // 判断登录状态
+            // 根据返回数据判断是否已登录（假设有 data 且有 id/userId 等字段表示已登录）
+            // 统一使用 true/false，避免 0/undefined 等边界情况
+            const isLoggedIn = !!(data?.data?.accounts?.length);
+            window.__isLoggedIn = isLoggedIn;
+
+            // 移除 loading 状态，显示对应骨架屏
+            skeleton.classList.remove('loading');
+
+            if (!isLoggedIn) {
+              // 未登录：显示 welcome-only 视图
+              skeleton.classList.add('not-logged-in');
+            }
+            // 已登录：保持默认的侧边栏 + 空白区域
+          })
+          .catch(function (error) {
+            console.warn('[Skeleton] Failed to check login status:', error);
+            // 请求失败时，移除 loading 状态
+            skeleton.classList.remove('loading');
+            window.__isLoggedIn = false;
+            // 出错也显示未登录视图，因为很可能是未登录导致的
+            skeleton.classList.add('not-logged-in');
+          });
+      }
+    })();
+  </script>
+
+
+  <!-- 骨架屏淡出脚本 -->
+  <script>
+    // 平滑隐藏骨架屏（当整个应用渲染完成时触发）
+    const hideSkeleton = (delay = 0) => {
+      const skeleton = document.getElementById('app-skeleton');
+
+      if (skeleton && !skeleton.classList.contains('hidden')) {
+        const doHide = () => {
+          // 添加 hidden 类触发淡出动画
+          skeleton.classList.add('hidden');
+
+          // 动画结束后移除 DOM
+          skeleton.addEventListener('animationend', () => {
+            skeleton.remove();
+          }, { once: true });
+
+          // 备用：如果 animationend 没触发，400ms 后强制移除
+          setTimeout(() => {
+            if (skeleton.parentNode) {
+              skeleton.remove();
+            }
+          }, 400);
+        };
+
+        if (delay > 0) {
+          // 使用 requestAnimationFrame 确保在下一帧执行，让真实UI先渲染
+          requestAnimationFrame(() => {
+            setTimeout(doHide, delay);
+          });
+        } else {
+          // 即使无延迟，也使用 requestAnimationFrame 确保真实UI已渲染
+          requestAnimationFrame(() => {
+            requestAnimationFrame(doHide);
+          });
+        }
+      }
+    };
+
+    // 监听应用就绪事件 - 添加短暂延迟确保侧边栏完全渲染
+    window.addEventListener('app-ready', () => hideSkeleton(50));
+
+    // 备用 - 如果 10 秒后还没触发，自动隐藏
+    setTimeout(() => {
+      const skeleton = document.getElementById('app-skeleton');
+      if (skeleton && !skeleton.classList.contains('hidden')) {
+        hideSkeleton(0);
+      }
+    }, 1000 * 20);
+  </script>
 </body>
+
 </html>
