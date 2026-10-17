@@ -1206,8 +1206,8 @@ body{
   min-width:34px;text-align:center;
   text-shadow:0 0 10px rgba(225,185,105,.35);
 }
-/* 两页版（围巾/纸片/耳机）：翻页方式更明显 */
-.rules-card.simple .rules-page{max-height:none}
+/* 两页版（围巾/纸片/耳机/小钥匙）：卡牌内可滑动 */
+.rules-card.simple .rules-page{max-height:min(52vh,400px)}
 .rules-card.simple .rules-arrow{
   width:38px;height:38px;font-size:1.25rem;
   background:rgba(210,180,120,.16);
@@ -1367,7 +1367,7 @@ body{
 /* 小钥匙：文字页 / 图片页 分页器 */
 .detail-pager{width:100%;max-width:344px;overflow:hidden;border-radius:16px;margin-bottom:14px}
 .detail-track{display:flex;transition:transform .55s cubic-bezier(.3,.7,.3,1);align-items:flex-start}
-.detail-page{min-width:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8a6838 transparent;overscroll-behavior:contain}
+.detail-page{min-width:100%;max-height:min(52vh,400px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8a6838 transparent;overscroll-behavior:contain}
 .detail-page::-webkit-scrollbar{width:4px}
 .detail-page::-webkit-scrollbar-thumb{background:#8a6838;border-radius:2px}
 .detail-page .doc-card{margin-bottom:0;height:100%;display:flex;flex-direction:column}
@@ -2846,6 +2846,8 @@ function openDetail(id) {
   goBtn.textContent = item.goLabel || '进 入 新 链 接';
 
   setupRulesPager(!!item.doc);
+  /* 旧镜页始终不显示底部「下一页」按钮 */
+  document.getElementById('rulesNextBtn').style.display = (id === 'relic1') ? 'none' : '';
 
   const docBox = document.getElementById('detailDoc');
   if (item.doc) {
@@ -2864,12 +2866,7 @@ function openDetail(id) {
     let dp = 0;
     const track = docBox.querySelector('#dTrack');
     const go2 = docBox.querySelector('#btn-doc-go');
-    /* 两页卡面等大：以文字页高度为准，两页均可内滑阅读 */
-    requestAnimationFrame(() => {
-      const pages = track.querySelectorAll('.detail-page');
-      const h = pages[0].scrollHeight;
-      pages.forEach(pg => { pg.style.height = h + 'px'; pg.style.overflowY = 'auto'; });
-    });
+    /* 两页均由 CSS max-height 控制高度，内部可滑动 */
     function docGo(i) {
       dp = Math.max(0, Math.min(1, i));
       track.style.transform = 'translateX(-' + (dp * 100) + '%)';
@@ -2920,22 +2917,8 @@ function setupRulesPager(hasDoc) {
     /* 三页版：恢复默认限高内滑 */
     document.querySelectorAll('#rulesTrack .rules-page').forEach(p => { p.style.height = ''; p.style.overflowY = ''; });
   } else {
-    /* 两页版：两页卡面等大且均可内滑，文字完整可读 */
-    requestAnimationFrame(() => {
-      const pages = document.querySelectorAll('#rulesTrack2 .rules-page');
-      pages.forEach(p => { p.style.height = ''; p.style.overflowY = ''; });
-      if (currentDetail === 'p3') {
-        /* 耳机：两页都等高内滑 */
-        const h = Math.max(pages[0].scrollHeight, pages[1].scrollHeight);
-        pages.forEach(p => { p.style.height = h + 'px'; p.style.overflowY = 'auto'; });
-      } else {
-        /* 围巾/纸片：第一页平铺，第二页内滑 */
-        const h = pages[0].scrollHeight;
-        pages[0].style.overflowY = 'hidden';
-        pages[1].style.height = h + 'px';
-        pages[1].style.overflowY = 'auto';
-      }
-    });
+    /* 两页版：由 CSS max-height 控制高度，内部可滑动 */
+    document.querySelectorAll('#rulesTrack2 .rules-page').forEach(p => { p.style.height = ''; p.style.overflowY = ''; });
   }
 }
 function gotoRulesPage(i) {
@@ -2949,7 +2932,9 @@ function gotoRulesPage(i) {
   const count = document.getElementById('rulesCount');
   if (count) count.textContent = (rulesPage + 1) + ' / ' + rulesTotal;
   const nb = document.getElementById('rulesNextBtn');
-  if (nb) nb.style.display = (rulesPage === rulesTotal - 1) ? 'none' : '';
+  if (nb) {
+    nb.style.display = (rulesPage === rulesTotal - 1 || currentDetail === 'relic1') ? 'none' : '';
+  }
 }
 document.getElementById('rulesPrev').addEventListener('click', () => gotoRulesPage(rulesPage - 1));
 document.getElementById('rulesNext').addEventListener('click', () => gotoRulesPage(rulesPage + 1));
