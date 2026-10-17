@@ -2461,9 +2461,16 @@ nameInput.addEventListener('input', () => {
   btnPrint.disabled = nameInput.value.trim().length === 0;
 });
 
-/* 输入法回车也可登车 */
+/* 回车 / 输入法前往 / 搜索键 均可登车 */
 nameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !btnPrint.disabled) btnPrint.click();
+  if (e.keyCode === 13 || e.key === 'Enter' || e.which === 13) {
+    e.preventDefault();
+    // 兜底：即使 disabled 状态未及时更新，有名字就允许进入
+    if (nameInput.value.trim().length > 0) {
+      btnPrint.disabled = false;
+      btnPrint.click();
+    }
+  }
 });
 
 btnPrint.addEventListener('click', () => {
